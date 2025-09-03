@@ -1,23 +1,58 @@
+/**
+ * Auto Path Header Extension
+ * Автор: Niklis
+ * Автоматически вставляет относительный путь файла в виде комментария на первой строке
+ */
+
 import * as vscode from 'vscode'
 import * as path from 'path'
+import { getMessage } from './localization'
 
 export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
-    const filePath = vscode.workspace.asRelativePath(document.uri)
+    try {
+      const filePath = vscode.workspace.asRelativePath(document.uri)
 
-    if (document.lineCount > 1 || document.languageId === 'Log') return
-    if (document.isUntitled || document.uri.scheme !== 'file') return
+      if (document.lineCount > 1 || document.languageId === 'Log') return
+      if (document.isUntitled || document.uri.scheme !== 'file') return
 
-    const editor = await vscode.window.showTextDocument(document)
-    const comment = getCommentForLang(document.languageId, filePath)
-    if (!comment) return
+      // Проверяем, не вставлен ли уже комментарий
+      const firstLine = document.lineAt(0).text.trim()
+      if (isCommentWithPath(firstLine, filePath)) return
 
-    await editor.edit(editBuilder => {
-      editBuilder.insert(new vscode.Position(0, 0), comment + '\n\n')
-    })
+      const editor = await vscode.window.showTextDocument(document)
+      const comment = getCommentForLang(document.languageId, filePath)
+      if (!comment) {
+        const language = vscode.env.language
+        vscode.window.showWarningMessage(
+          getMessage('unsupportedLanguage', language, document.languageId)
+        )
+        return
+      }
+
+      await editor.edit(editBuilder => {
+        editBuilder.insert(new vscode.Position(0, 0), comment + '\n\n')
+      })
+    } catch (error) {
+      const language = vscode.env.language
+      vscode.window.showErrorMessage(
+        getMessage('errorInsertingComment', language, error instanceof Error ? error.message : String(error))
+      )
+    }
   })
 
   context.subscriptions.push(disposable)
+}
+
+function isCommentWithPath(line: string, filePath: string): boolean {
+  const normalizedPath = filePath.replace(/\\/g, '/')
+  return line.includes(normalizedPath) && (
+    line.startsWith('//') || 
+    line.startsWith('#') || 
+    line.startsWith('/*') || 
+    line.startsWith('--') || 
+    line.startsWith('<!--')
+  )
 }
 
 function getCommentForLang(lang: string, filePath: string): string | null {

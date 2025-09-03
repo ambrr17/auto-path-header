@@ -1,8 +1,9 @@
 {
   "name": "auto-path-header",
   "displayName": "Auto Path Header",
-  "description": "Automatically inserts the relative path of the file as a comment on the first line.",
+  "description": "Automatically inserts the relative path of the file as a comment on the first line. Автоматически вставляет относительный путь файла в виде комментария на первой строке.",
   "version": "0.0.2",
+  "author": "Niklis",
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -13,7 +14,31 @@
     "*"
   ],
   "main": "./dist/extension.js",
-  "contributes": {},
+  "contributes": {
+    "commands": [
+      {
+        "command": "autoPathHeader.insertComment",
+        "title": "Insert Path Comment",
+        "category": "Auto Path Header"
+      }
+    ],
+    "configuration": {
+      "title": "Auto Path Header",
+      "properties": {
+        "autoPathHeader.enabled": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable automatic comment insertion"
+        },
+        "autoPathHeader.language": {
+          "type": "string",
+          "enum": ["auto", "en", "ru"],
+          "default": "auto",
+          "description": "Language for extension messages (auto = system language)"
+        }
+      }
+    }
+  },
   "scripts": {
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
