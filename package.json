@@ -1,7 +1,7 @@
 {
   "name": "auto-path-header",
   "displayName": "Auto Path Header",
-  "description": "Automatically inserts the relative path of the file as a comment on the first line. Автоматически вставляет относительный путь файла в виде комментария на первой строке.",
+  "description": "Automatically inserts the relative path of the file as a comment on the first line.",
   "version": "0.0.2",
   "author": "Niklis",
   "engines": {
