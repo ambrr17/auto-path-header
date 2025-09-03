@@ -35,6 +35,16 @@
           "enum": ["auto", "en", "ru"],
           "default": "auto",
           "description": "Language for extension messages (auto = system language)"
+        },
+        "autoPathHeader.updateOnRename": {
+          "type": "boolean",
+          "default": true,
+          "description": "Automatically update path comment when file is renamed or moved"
+        },
+        "autoPathHeader.askBeforeUpdate": {
+          "type": "boolean",
+          "default": false,
+          "description": "Ask for confirmation before updating path comment (only works when updateOnRename is true)"
         }
       }
     }

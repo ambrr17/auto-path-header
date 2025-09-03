@@ -42,6 +42,8 @@
 
 - `autoPathHeader.enabled` - включить/выключить автоматическую вставку
 - `autoPathHeader.language` - язык сообщений (auto/en/ru)
+- `autoPathHeader.updateOnRename` - автоматически обновлять комментарий с путём при переименовании/перемещении файлов
+- `autoPathHeader.askBeforeUpdate` - спрашивать разрешение перед обновлением комментария (работает только когда updateOnRename = true)
 
 ## Использование
 

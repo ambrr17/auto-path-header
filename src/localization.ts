@@ -9,14 +9,22 @@ export const messages = {
     description: 'Automatically inserts the relative path of the file as a comment on the first line.',
     errorInsertingComment: 'Error inserting comment: {0}',
     commentAlreadyExists: 'Comment already exists in file',
-    unsupportedLanguage: 'Unsupported language: {0}'
+    unsupportedLanguage: 'Unsupported language: {0}',
+    fileRenamed: 'File renamed from {0} to {1}',
+    updatePathComment: 'Update path comment?',
+    pathCommentUpdated: 'Path comment updated successfully',
+    errorUpdatingComment: 'Error updating comment: {0}'
   },
   ru: {
     extensionName: 'Автозаголовок пути',
     description: 'Автоматически вставляет относительный путь файла в виде комментария на первой строке.',
     errorInsertingComment: 'Ошибка вставки комментария: {0}',
     commentAlreadyExists: 'Комментарий уже существует в файле',
-    unsupportedLanguage: 'Неподдерживаемый язык: {0}'
+    unsupportedLanguage: 'Неподдерживаемый язык: {0}',
+    fileRenamed: 'Файл переименован с {0} на {1}',
+    updatePathComment: 'Обновить комментарий с путём?',
+    pathCommentUpdated: 'Комментарий с путём обновлён успешно',
+    errorUpdatingComment: 'Ошибка обновления комментария: {0}'
   }
 };
 
