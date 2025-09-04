@@ -1,100 +1,108 @@
 # Auto Path Header
 
-**Автозаголовок пути** - расширение для Visual Studio Code, которое автоматически вставляет относительный путь файла в виде комментария на первой строке.
+Auto Path Header is a Visual Studio Code extension that automatically inserts the relative file path as a comment on the first line.
 
-**Автор:** Niklis
+Language: EN | [RU](./README_RU.md)
 
-## Возможности
+Author: Niklis
 
-- ✅ Автоматическая вставка пути файла при открытии
-- ✅ Поддержка множества языков программирования
-- ✅ Предотвращение дублирования комментариев
-- ✅ Поддержка русского и английского языков
-- ✅ Настраиваемые параметры
-- ✅ Обработка ошибок с локализованными сообщениями
+## Features
 
-## Поддерживаемые языки
+- Automatic insertion of the file path on open
+- Support for many programming languages
+- Duplicate comment prevention
+- RU/EN localization support
+- Configurable settings
+- Error handling with localized messages
+- Automatic path update on rename/move
+- Manual comment insertion via Command Palette
 
-### Однострочные комментарии (`//`)
+## Supported languages
+
+### Single-line comments (`//`)
 - JavaScript, TypeScript, Java, C, C++, C#, Go, Rust, Swift, Kotlin, PHP
 
-### Решёточные комментарии (`#`)
+### Hash comments (`#`)
 - Python, Shell Script, Ruby, Perl, .env
 
-### Блочные комментарии (`/* */`)
+### Block comments (`/* */`)
 - CSS, SCSS, Sass
 
-### SQL комментарии (`--`)
+### SQL comments (`--`)
 - SQL
 
-### HTML комментарии (`<!-- -->`)
+### HTML comments (`<!-- -->`)
 - HTML, XML
 
-## Установка
+## Installation
 
-1. Скачайте файл `.vsix` из релизов
-2. В VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX..."
-3. Выберите скачанный файл
+1. Download the `.vsix` package from releases
+2. In VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX..."
+3. Pick the downloaded file
 
-## Настройки
+## Settings
 
-Расширение можно настроить в настройках VS Code:
+- `autoPathHeader.enabled` — enable/disable automatic insertion
+- `autoPathHeader.language` — message language (auto/en/ru)
+- `autoPathHeader.updateOnRename` — automatically update comment on rename/move
+- `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 
-- `autoPathHeader.enabled` - включить/выключить автоматическую вставку
-- `autoPathHeader.language` - язык сообщений (auto/en/ru)
-- `autoPathHeader.updateOnRename` - автоматически обновлять комментарий с путём при переименовании/перемещении файлов
-- `autoPathHeader.askBeforeUpdate` - спрашивать разрешение перед обновлением комментария (работает только когда updateOnRename = true)
+## Usage
 
-## Использование
+- Works automatically on file open (for supported languages)
+- Manual insertion:
+  1. `Ctrl+Shift+P` → "Auto Path Header: Insert Path Comment"
 
-Расширение работает автоматически при открытии файлов. Если нужно вставить комментарий вручную:
+## Development
 
-1. `Ctrl+Shift+P` → "Auto Path Header: Insert Path Comment"
-
-## Разработка
-
-### Требования
+### Requirements
 - Node.js
 - VS Code Extension Development Host
 
-### Установка зависимостей
+### Install deps
 ```bash
 npm install
 ```
 
-### Компиляция
+### Compile
 ```bash
 npm run compile
 ```
 
-### Сборка пакета
+### Package
 ```bash
 npm run package
 ```
 
-## Тестирование
+## Tests
 
+- Unit tests (Mocha):
 ```bash
 npm test
 ```
 
-## Вклад в проект
+- VS Code integration tests:
+```bash
+npm run test:it
+```
 
-1. Форкните репозиторий
-2. Создайте ветку для новой функции
-3. Внесите изменения
-4. Добавьте тесты
-5. Создайте Pull Request
+## Contributing
 
-## Лицензия
+1. Fork this repository
+2. Create a feature branch
+3. Implement changes
+4. Add/adjust tests
+5. Open a Pull Request
+
+## License
 
 MIT License
 
-## Версии
+## Versions
 
-- **v0.0.2** - Добавлена поддержка русского языка, улучшена обработка ошибок
-- **v0.0.1** - Базовая функциональность
+- v0.0.2 — RU localization, error handling, rename updates, tests
+- v0.0.1 — initial functionality
 
-## Поддержка
+## Support
 
-Если у вас есть вопросы или предложения, создайте Issue в репозитории.
+If you have questions or suggestions, please open an Issue.
