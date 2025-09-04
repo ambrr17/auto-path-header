@@ -7,6 +7,8 @@
 import * as vscode from 'vscode'
 import { getMessage } from './localization'
 import { getCommentForLang, isCommentWithPath } from './utils/comments'
+import { readConfig } from './services/config'
+import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
 
 export function activate(context: vscode.ExtensionContext) {
   // Автоматическая вставка при открытии файла
@@ -17,23 +19,8 @@ export function activate(context: vscode.ExtensionContext) {
       if (document.lineCount > 1 || document.languageId === 'Log') return
       if (document.isUntitled || document.uri.scheme !== 'file') return
 
-      // Проверяем, не вставлен ли уже комментарий
-      const firstLine = document.lineAt(0).text.trim()
-      if (isCommentWithPath(firstLine, filePath)) return
-
-      const editor = await vscode.window.showTextDocument(document)
-      const comment = getCommentForLang(document.languageId, filePath)
-      if (!comment) {
-        const language = vscode.env.language
-        vscode.window.showWarningMessage(
-          getMessage('unsupportedLanguage', language, document.languageId)
-        )
-        return
-      }
-
-      await editor.edit(editBuilder => {
-        editBuilder.insert(new vscode.Position(0, 0), comment + '\n\n')
-      })
+      const ok = await ensureCommentAtTop(document, filePath)
+      if (!ok) return
     } catch (error) {
       const language = vscode.env.language
       vscode.window.showErrorMessage(
@@ -44,53 +31,36 @@ export function activate(context: vscode.ExtensionContext) {
 
   // Слушатель переименования файлов
   const renameDisposable = vscode.workspace.onDidRenameFiles(async (event) => {
-    const config = vscode.workspace.getConfiguration('autoPathHeader')
-    const updateOnRename = config.get<boolean>('updateOnRename', true)
-    
-    if (!updateOnRename) return
+    const cfg = readConfig()
+    if (!cfg.updateOnRename) return
 
     for (const fileRename of event.files) {
       try {
         const oldPath = vscode.workspace.asRelativePath(fileRename.oldUri)
         const newPath = vscode.workspace.asRelativePath(fileRename.newUri)
-        
-        // Открываем новый файл для обновления комментария
+
         const document = await vscode.workspace.openTextDocument(fileRename.newUri)
-        const editor = await vscode.window.showTextDocument(document)
-        
-        // Проверяем, есть ли комментарий с путём в первой строке
+
+        // Проверка наличия старого комментария
         const firstLine = document.lineAt(0).text.trim()
         if (!isCommentWithPath(firstLine, oldPath)) continue
 
-        // Проверяем, нужно ли спрашивать разрешение
-        const askBeforeUpdate = config.get<boolean>('askBeforeUpdate', false)
-        if (askBeforeUpdate) {
+        if (cfg.askBeforeUpdate) {
           const language = vscode.env.language
           const message = getMessage('updatePathComment', language)
           const oldName = oldPath.split('/').pop() || oldPath
           const newName = newPath.split('/').pop() || newPath
           const renameInfo = getMessage('fileRenamed', language, oldName, newName)
-          
+
           const result = await vscode.window.showInformationMessage(
             `${renameInfo}\n${message}`,
             'Yes', 'No'
           )
-          
           if (result !== 'Yes') continue
         }
 
-        // Обновляем комментарий с новым путём
-        const newComment = getCommentForLang(document.languageId, newPath)
-        if (!newComment) continue
-
-        // Заменяем старый комментарий новым
-        const oldComment = getCommentForLang(document.languageId, oldPath)
-        if (oldComment) {
-          const oldCommentRange = new vscode.Range(0, 0, 0, oldComment.length)
-          await editor.edit(editBuilder => {
-            editBuilder.replace(oldCommentRange, newComment)
-          })
-          
+        const ok = await replaceTopComment(document, oldPath, newPath)
+        if (ok) {
           const language = vscode.env.language
           vscode.window.showInformationMessage(
             getMessage('pathCommentUpdated', language)
@@ -122,15 +92,6 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     try {
-      const comment = getCommentForLang(document.languageId, filePath)
-      if (!comment) {
-        const language = vscode.env.language
-        vscode.window.showWarningMessage(
-          getMessage('unsupportedLanguage', language, document.languageId)
-        )
-        return
-      }
-
       // Проверяем, не вставлен ли уже комментарий
       const firstLine = document.lineAt(0).text.trim()
       if (isCommentWithPath(firstLine, filePath)) {
@@ -138,9 +99,7 @@ export function activate(context: vscode.ExtensionContext) {
         return
       }
 
-      await editor.edit(editBuilder => {
-        editBuilder.insert(new vscode.Position(0, 0), comment + '\n\n')
-      })
+      await ensureCommentAtTop(document, filePath)
     } catch (error) {
       const language = vscode.env.language
       vscode.window.showErrorMessage(
