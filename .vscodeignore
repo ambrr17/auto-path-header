@@ -1,0 +1,7 @@
+# Exclude tests and fixtures from VSIX
+src/test/**
+src/it/**
+.vscode-test/**
+.vscode-testworkspace/**
+INTEGRATION_TESTS_RU.md
+TESTS_RU.md

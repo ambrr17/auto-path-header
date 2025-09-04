@@ -67,3 +67,7 @@ test-results/
 
 # VS Code test runner artifacts
 .vscode-test/
+
+# VS Code test workspace artifacts
+.vscode-testworkspace/*
+!.vscode-testworkspace/.gitkeep
