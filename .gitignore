@@ -64,3 +64,6 @@ coverage/
 test-results/
 *.test.js
 *.test.js.map
+
+# VS Code test runner artifacts
+.vscode-test/

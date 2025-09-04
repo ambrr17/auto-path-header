@@ -16,7 +16,7 @@ export const messages = {
     errorUpdatingComment: 'Error updating comment: {0}'
   },
   ru: {
-    extensionName: 'Автозаголовок пути',
+    extensionName: 'Автозаголовок расположения файла',
     description: 'Автоматически вставляет относительный путь файла в виде комментария на первой строке.',
     errorInsertingComment: 'Ошибка вставки комментария: {0}',
     commentAlreadyExists: 'Комментарий уже существует в файле',

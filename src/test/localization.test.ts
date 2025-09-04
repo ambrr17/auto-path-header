@@ -15,7 +15,7 @@ suite('Localization Tests', () => {
 
   test('getMessage should return Russian message for Russian language', () => {
     const result = getMessage('extensionName', 'ru');
-    assert.strictEqual(result, 'Автозаголовок пути');
+    assert.strictEqual(result, 'Автозаголовок расположения файла');
   });
 
   test('getMessage should return English message for unsupported language', () => {

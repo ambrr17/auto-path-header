@@ -76,7 +76,8 @@
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
-    "test": "mocha --ui tdd \"dist/test/**/*.test.js\""
+    "test": "mocha --ui tdd \"dist/test/**/*.test.js\"",
+    "test:it": "node ./dist/it/runTest.js"
   },
   "devDependencies": {
     "@types/node": "^24.0.4",
