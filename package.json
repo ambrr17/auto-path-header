@@ -53,12 +53,18 @@
     "vscode:prepublish": "tsc -p ./",
     "compile": "tsc -p ./",
     "watch": "tsc -watch -p ./",
-    "package": "vsce package"
+    "package": "vsce package",
+    "test": "mocha --ui tdd \"dist/test/**/*.test.js\""
   },
   "devDependencies": {
     "@types/node": "^24.0.4",
     "@types/vscode": "^1.85.0",
+    "@types/mocha": "^10.0.0",
+    "@types/glob": "^8.0.0",
+    "@vscode/test-electron": "^2.3.0",
     "typescript": "^5.0.0",
-    "vsce": "^2.14.0"
+    "vsce": "^2.14.0",
+    "mocha": "^10.0.0",
+    "glob": "^10.0.0"
   }
 }

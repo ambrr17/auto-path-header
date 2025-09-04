@@ -6,6 +6,7 @@
 
 import * as vscode from 'vscode'
 import { getMessage } from './localization'
+import { getCommentForLang, isCommentWithPath } from './utils/comments'
 
 export function activate(context: vscode.ExtensionContext) {
   // Автоматическая вставка при открытии файла
@@ -149,52 +150,6 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   context.subscriptions.push(disposable, renameDisposable, insertCommentCommand)
-}
-
-function isCommentWithPath(line: string, filePath: string): boolean {
-  const normalizedPath = filePath.replace(/\\/g, '/')
-  return line.includes(normalizedPath) && (
-    line.startsWith('//') || 
-    line.startsWith('#') || 
-    line.startsWith('/*') || 
-    line.startsWith('--') || 
-    line.startsWith('<!--')
-  )
-}
-
-function getCommentForLang(lang: string, filePath: string): string | null {
-  const line = ` ${filePath}`
-  switch (lang) {
-    case 'javascript':
-    case 'typescript':
-    case 'java':
-    case 'c':
-    case 'cpp':
-    case 'csharp':
-    case 'go':
-    case 'rust':
-    case 'swift':
-    case 'kotlin':
-    case 'php':
-      return '//' + line
-    case 'python':
-    case 'shellscript':
-    case 'ruby':
-    case 'perl':
-    case 'dotenv':
-      return '#' + line
-    case 'css':
-    case 'scss':
-    case 'sass':
-      return `/*${line} */`
-    case 'sql':
-      return '--' + line
-    case 'html':
-    case 'xml':
-      return `<!--${line}-->`
-    default:
-      return null
-  }
 }
 
 export function deactivate() {}
