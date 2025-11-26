@@ -4,6 +4,10 @@
   "description": "Automatically inserts the relative path of the file as a comment on the first line.",
   "version": "0.0.2",
   "author": "Niklis",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ambrr17/auto-path-header.git"
+  },
   "engines": {
     "vscode": "^1.85.0"
   },
