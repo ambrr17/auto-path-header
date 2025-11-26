@@ -46,6 +46,8 @@ Author: Niklis
 - `autoPathHeader.language` — message language (auto/en/ru)
 - `autoPathHeader.updateOnRename` — automatically update comment on rename/move
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
+- `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
+- `autoPathHeader.disabledLanguages` — array of VS Code language IDs where auto insertion/updates are disabled.
 
 ## Usage
 

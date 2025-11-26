@@ -82,5 +82,15 @@ suite('Auto Path Header Extension Tests', () => {
     const result = isCommentWithPath('import src/example.js', 'src/example.js');
     assert.strictEqual(result, false);
   });
+
+  test('getCommentForLang should apply prefix/path template placeholders', () => {
+    const result = getCommentForLang('javascript', 'src/example.js', '{prefix}[{path}]{suffix}');
+    assert.strictEqual(result, '// [src/example.js]');
+  });
+
+  test('getCommentForLang should keep block suffix when templated', () => {
+    const result = getCommentForLang('css', 'styles/site.css', '{prefix}{path}{suffix}');
+    assert.strictEqual(result, '/* styles/site.css */');
+  });
 });
 

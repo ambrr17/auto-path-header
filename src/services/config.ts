@@ -15,6 +15,10 @@ export interface AutoPathHeaderConfig {
 	updateOnRename: boolean
 	/** Ask confirmation before updating path comment */
 	askBeforeUpdate: boolean
+	/** Template for generated comment */
+	formatTemplate: string
+	/** Languages where functionality is disabled */
+	disabledLanguages: string[]
 }
 
 /**
@@ -22,10 +26,13 @@ export interface AutoPathHeaderConfig {
  */
 export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderConfig {
 	const cfg = vscode.workspace.getConfiguration('autoPathHeader', scope)
+	const formatTemplate = cfg.get<string>('formatTemplate', '{comment}')?.trim() || '{comment}'
 	return {
 		enabled: cfg.get<boolean>('enabled', true),
 		language: cfg.get<SupportedUiLanguage>('language', 'auto'),
 		updateOnRename: cfg.get<boolean>('updateOnRename', true),
 		askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
+		formatTemplate,
+		disabledLanguages: cfg.get<string[]>('disabledLanguages', []),
 	}
 }

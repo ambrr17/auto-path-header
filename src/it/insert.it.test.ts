@@ -31,6 +31,13 @@ async function waitForDocChange(doc: vscode.TextDocument, timeoutMs = 2000): Pro
   });
 }
 
+const configSection = 'autoPathHeader';
+
+async function updateWorkspaceConfig<T>(key: string, value: T | undefined) {
+  const config = vscode.workspace.getConfiguration(configSection);
+  await config.update(key, value, vscode.ConfigurationTarget.Workspace);
+}
+
 suite('Insert comment (integration)', () => {
   test('auto insert on open for empty TS file', async () => {
     const uri = await createWorkspaceFile('auto-insert.ts', '');
@@ -60,5 +67,32 @@ suite('Insert comment (integration)', () => {
     await new Promise(r => setTimeout(r, 200));
     const after = editor.document.lineAt(0).text;
     assert.strictEqual(after, before, 'Command should not duplicate existing comment');
+  });
+
+  test('respects disabledLanguages configuration', async () => {
+    await updateWorkspaceConfig('disabledLanguages', ['typescript']);
+    try {
+      const uri = await createWorkspaceFile('disabled-lang.ts', '');
+      const editor = await openFile(uri);
+      // Дадим время обработчику onDidOpen
+      await new Promise(resolve => setTimeout(resolve, 500));
+      const firstLine = editor.document.lineAt(0).text;
+      assert.strictEqual(firstLine.trim(), '', 'First line should stay empty when language disabled');
+    } finally {
+      await updateWorkspaceConfig('disabledLanguages', undefined);
+    }
+  });
+
+  test('applies formatTemplate placeholders', async () => {
+    await updateWorkspaceConfig('formatTemplate', '{prefix}[{path}]{suffix}');
+    try {
+      const uri = await createWorkspaceFile('custom-template.ts', '');
+      const editor = await openFile(uri);
+      await waitForDocChange(editor.document);
+      const firstLine = editor.document.lineAt(0).text.trim();
+      assert.strictEqual(firstLine, '// [custom-template.ts]');
+    } finally {
+      await updateWorkspaceConfig('formatTemplate', undefined);
+    }
   });
 });

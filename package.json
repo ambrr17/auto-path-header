@@ -71,6 +71,19 @@
           "type": "boolean",
           "default": false,
           "description": "Ask for confirmation before updating path comment (only works when updateOnRename is true)"
+        },
+        "autoPathHeader.formatTemplate": {
+          "type": "string",
+          "default": "{comment}",
+          "description": "Template for generated comment. Supports {comment}, {path}, {prefix}, {suffix}"
+        },
+        "autoPathHeader.disabledLanguages": {
+          "type": "array",
+          "description": "List of VS Code language IDs where automatic insertion is disabled",
+          "default": [],
+          "items": {
+            "type": "string"
+          }
         }
       }
     }
