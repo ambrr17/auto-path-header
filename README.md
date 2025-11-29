@@ -39,6 +39,7 @@ Author: Niklis
 1. Download the `.vsix` package from releases
 2. In VS Code: `Ctrl+Shift+P` → "Extensions: Install from VSIX..."
 3. Pick the downloaded file
+4. (Optional) Once published, you can install it directly from the VS Code Marketplace by searching for “Auto Path Header”.
 
 ## Settings
 
@@ -48,6 +49,46 @@ Author: Niklis
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 - `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
 - `autoPathHeader.disabledLanguages` — array of VS Code language IDs where auto insertion/updates are disabled.
+
+### Comment template configuration
+
+`formatTemplate` allows you to change how the first line looks. The extension substitutes placeholders with actual values:
+
+| Placeholder | Description                          | Example value            |
+|-------------|--------------------------------------|--------------------------|
+| `{comment}` | Full comment with prefix & suffix    | `// src/utils/file.ts`   |
+| `{path}`    | Relative path only                   | `src/utils/file.ts`      |
+| `{prefix}`  | Language-specific opening token      | `// `, `/* `, `<!-- `    |
+| `{suffix}`  | Closing token (if the language has it)| ` */`, ` -->`            |
+
+Examples:
+
+```jsonc
+{
+  "autoPathHeader.formatTemplate": "{prefix}[{path}]{suffix}"
+}
+```
+
+```jsonc
+{
+  "autoPathHeader.formatTemplate": "// File: {path}"
+}
+```
+
+### Disabling languages
+
+If you need to disable automatic comments for specific languages (for example, Markdown), add their language identifiers to `disabledLanguages`:
+
+```jsonc
+{
+  "autoPathHeader.disabledLanguages": [
+    "markdown",
+    "plaintext"
+  ]
+}
+```
+
+The manual command will respect this list and show a message instead of inserting a comment.
 
 ## Usage
 
@@ -100,8 +141,9 @@ npm run test:it
 
 MIT License
 
-## Versions
+## Release notes
 
+- v0.0.3 — Custom `formatTemplate`, `disabledLanguages`, improved rename handling, GitHub Actions VSIX workflow
 - v0.0.2 — RU localization, error handling, rename updates, tests
 - v0.0.1 — initial functionality
 

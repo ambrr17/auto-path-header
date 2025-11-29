@@ -2,12 +2,24 @@
   "name": "auto-path-header",
   "displayName": "Auto Path Header",
   "description": "Automatically inserts the relative path of the file as a comment on the first line.",
-  "version": "0.0.2",
+  "version": "0.1.0",
+  "publisher": "Niklis",
+  "engines": {
+    "vscode": "^1.80.0"
+  },
   "author": "Niklis",
   "repository": {
     "type": "git",
     "url": "https://github.com/ambrr17/auto-path-header.git"
   },
+  "keywords": [
+    "vscode",
+    "comment",
+    "header",
+    "path",
+    "file path",
+    "automation"
+  ],
   "engines": {
     "vscode": "^1.85.0"
   },
@@ -58,7 +70,11 @@
         },
         "autoPathHeader.language": {
           "type": "string",
-          "enum": ["auto", "en", "ru"],
+          "enum": [
+            "auto",
+            "en",
+            "ru"
+          ],
           "default": "auto",
           "description": "Language for extension messages (auto = system language)"
         },
