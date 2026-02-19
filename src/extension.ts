@@ -5,23 +5,41 @@
  */
 
 import * as vscode from 'vscode'
+import * as path from 'path';
 import { getMessage } from './localization'
 import { isCommentWithPath } from './utils/comments'
 import { readConfig } from './services/config'
 import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
 
 export function activate(context: vscode.ExtensionContext) {
+  // Подписка на изменения конфигурации для обновления кэша
+  const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(e => {
+    if (e.affectsConfiguration('autoPathHeader')) {
+      // Конфигурация будет перечитана при следующем использовании
+    }
+  });
+
   // Автоматическая вставка при открытии файла
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
+
+    //##############
+    vscode.window.showInformationMessage(`!Hello from my extension: ${document.languageId}`);
+    // vscode.window.showInformationMessage(document.languageId);
+    //##############
+
     try {
+      if (document.lineCount > 1 || document.languageId === 'Log') return
+      if (document.isUntitled || document.uri.scheme !== 'file') return
+
+      const filePath = vscode.workspace.asRelativePath(document.uri)
       const cfg = readConfig(document.uri)
       if (!cfg.enabled) return
       if (cfg.disabledLanguages.includes(document.languageId)) return
-
-      const filePath = vscode.workspace.asRelativePath(document.uri)
-
-      if (document.lineCount > 1 || document.languageId === 'Log') return
-      if (document.isUntitled || document.uri.scheme !== 'file') return
+      
+      // Получаем расширение файла и проверяем, не отключено ли оно
+      const documentPath = document.uri.path;
+      const fileExtension = path.extname(documentPath).toLowerCase();
+      if (cfg.disabledExtensions.includes(fileExtension)) return
 
       const ok = await ensureCommentAtTop(document, filePath, cfg)
       if (!ok) return
@@ -34,49 +52,105 @@ export function activate(context: vscode.ExtensionContext) {
   })
 
   // Слушатель переименования файлов
+  let renameOperationInProgress = false;
   const renameDisposable = vscode.workspace.onDidRenameFiles(async (event) => {
-    for (const fileRename of event.files) {
-      try {
-        const cfg = readConfig(fileRename.newUri)
-        if (!cfg.enabled || !cfg.updateOnRename) continue
+    // Prevent concurrent rename operations to avoid race conditions
+    if (renameOperationInProgress) {
+      // Wait a bit before processing to allow previous operations to complete
+      await new Promise(resolve => setTimeout(resolve, 100));
+    }
 
-        const oldPath = vscode.workspace.asRelativePath(fileRename.oldUri)
-        const newPath = vscode.workspace.asRelativePath(fileRename.newUri)
+    renameOperationInProgress = true;
+    try {
+      // Process all renames sequentially to avoid conflicts
+      for (const fileRename of event.files) {
+        try {
+          const oldPath = vscode.workspace.asRelativePath(fileRename.oldUri)
+          const newPath = vscode.workspace.asRelativePath(fileRename.newUri)
 
-        const document = await vscode.workspace.openTextDocument(fileRename.newUri)
-        if (cfg.disabledLanguages.includes(document.languageId)) continue
+          // Проверяем существование файла перед открытием
+          try {
+            const stat = await vscode.workspace.fs.stat(fileRename.newUri);
+          } catch (error) {
+            // Файл не существует, пропускаем обработку
+            continue;
+          }
 
-        // Проверка наличия старого комментария
-        const firstLine = document.lineAt(0).text.trim()
-        if (!isCommentWithPath(firstLine, oldPath)) continue
+          const document = await vscode.workspace.openTextDocument(fileRename.newUri)
 
-        if (cfg.askBeforeUpdate) {
+          // Читаем конфигурацию после открытия документа, чтобы получить актуальные настройки
+          const cfg = readConfig(fileRename.newUri)
+          if (!cfg.enabled || !cfg.updateOnRename) continue
+
+          // Проверяем, является ли язык отключенным, но делаем исключение для пользовательских шаблонов
+          const isLanguageDisabled = cfg.disabledLanguages.includes(document.languageId);
+          
+          // Проверяем, является ли расширение отключенным
+          const documentPath = fileRename.newUri.path;
+          const fileExtension = path.extname(documentPath).toLowerCase();
+          const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension);
+          
+          // Проверяем, есть ли специфический шаблон для этого файла
+          const hasCustomTemplate = Object.keys(cfg.customTemplatesByExtension).some(key => {
+            const fileName = path.basename(newPath);
+            if (key === fileName) return true; // Совпадение по полному имени файла
+
+            // Проверяем совпадение по расширению (включая составные)
+            const ext = path.extname(fileName).toLowerCase();
+            const parts = fileName.split('.');
+            if (parts.length > 1) {
+              for (let i = 1; i < parts.length; i++) {
+                const compoundExt = '.' + parts.slice(i).join('.').toLowerCase();
+                if (key === compoundExt) return true;
+              }
+            }
+            return key === ext; // Совпадение по обычному расширению
+          });
+
+          // Если язык или расширение отключены, но у нас есть пользовательский шаблон для этого конкретного файла/расширения,
+          // все равно обрабатываем файл
+          if ((isLanguageDisabled || isExtensionDisabled) && !hasCustomTemplate) continue;
+
+          // Проверка наличия старого комментария
+          const firstLine = document.lineAt(0).text.trim()
+          if (!isCommentWithPath(firstLine, oldPath)) continue
+
+          ///////////////
+          // const msg = await vscode.window.showInformationMessage(`+++ ${oldPath}`,
+          //   'Yes', 'No');
+          // if (msg !== 'Yes') continue
+          ///////////////
+
+          if (cfg.askBeforeUpdate) {
+            const language = vscode.env.language
+            const message = getMessage('updatePathComment', language)
+            const oldName = oldPath.split('/').pop() || oldPath
+            const newName = newPath.split('/').pop() || newPath
+            const renameInfo = getMessage('fileRenamed', language, oldName, newName)
+
+            const result = await vscode.window.showInformationMessage(
+              `${renameInfo}\n${message}`,
+              'Yes', 'No'
+            )
+            if (result !== 'Yes') continue
+          }
+
+          const ok = await replaceTopComment(document, oldPath, newPath, cfg)
+          if (ok) {
+            const language = vscode.env.language
+            vscode.window.showInformationMessage(
+              getMessage('pathCommentUpdated', language)
+            )
+          }
+        } catch (error) {
           const language = vscode.env.language
-          const message = getMessage('updatePathComment', language)
-          const oldName = oldPath.split('/').pop() || oldPath
-          const newName = newPath.split('/').pop() || newPath
-          const renameInfo = getMessage('fileRenamed', language, oldName, newName)
-
-          const result = await vscode.window.showInformationMessage(
-            `${renameInfo}\n${message}`,
-            'Yes', 'No'
-          )
-          if (result !== 'Yes') continue
-        }
-
-        const ok = await replaceTopComment(document, oldPath, newPath, cfg)
-        if (ok) {
-          const language = vscode.env.language
-          vscode.window.showInformationMessage(
-            getMessage('pathCommentUpdated', language)
+          vscode.window.showErrorMessage(
+            getMessage('errorUpdatingComment', language, error instanceof Error ? error.message : String(error))
           )
         }
-      } catch (error) {
-        const language = vscode.env.language
-        vscode.window.showErrorMessage(
-          getMessage('errorUpdatingComment', language, error instanceof Error ? error.message : String(error))
-        )
       }
+    } finally {
+      renameOperationInProgress = false;
     }
   })
 
@@ -97,6 +171,13 @@ export function activate(context: vscode.ExtensionContext) {
     }
 
     try {
+      // Проверяем, не вставлен ли уже комментарий
+      const firstLine = document.lineAt(0).text.trim()
+      if (isCommentWithPath(firstLine, filePath)) {
+        vscode.window.showInformationMessage('Comment already exists in file')
+        return
+      }
+
       const cfg = readConfig(document.uri)
       if (cfg.disabledLanguages.includes(document.languageId)) {
         const language = vscode.env.language
@@ -105,11 +186,15 @@ export function activate(context: vscode.ExtensionContext) {
         )
         return
       }
-
-      // Проверяем, не вставлен ли уже комментарий
-      const firstLine = document.lineAt(0).text.trim()
-      if (isCommentWithPath(firstLine, filePath)) {
-        vscode.window.showInformationMessage('Comment already exists in file')
+      
+      // Проверяем отключение по расширению файла
+      const documentPath = document.uri.path;
+      const fileExtension = path.extname(documentPath).toLowerCase();
+      if (cfg.disabledExtensions.includes(fileExtension)) {
+        const language = vscode.env.language
+        vscode.window.showInformationMessage(
+          getMessage('extensionDisabled', language, fileExtension)
+        )
         return
       }
 
@@ -122,7 +207,7 @@ export function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  context.subscriptions.push(disposable, renameDisposable, insertCommentCommand)
+  context.subscriptions.push(disposable, renameDisposable, insertCommentCommand, configChangeDisposable)
 }
 
-export function deactivate() {}
+export function deactivate() { }

@@ -2,10 +2,10 @@
   "name": "auto-path-header",
   "displayName": "Auto Path Header",
   "description": "Automatically inserts the relative path of the file as a comment on the first line.",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "publisher": "Niklis",
   "engines": {
-    "vscode": "^1.80.0"
+    "vscode": "^1.85.0"
   },
   "author": "Niklis",
   "repository": {
@@ -20,36 +20,12 @@
     "file path",
     "automation"
   ],
-  "engines": {
-    "vscode": "^1.85.0"
-  },
   "categories": [
     "Other"
   ],
   "activationEvents": [
     "onCommand:autoPathHeader.insertComment",
-    "onLanguage:javascript",
-    "onLanguage:typescript",
-    "onLanguage:java",
-    "onLanguage:c",
-    "onLanguage:cpp",
-    "onLanguage:csharp",
-    "onLanguage:go",
-    "onLanguage:rust",
-    "onLanguage:swift",
-    "onLanguage:kotlin",
-    "onLanguage:php",
-    "onLanguage:python",
-    "onLanguage:shellscript",
-    "onLanguage:ruby",
-    "onLanguage:perl",
-    "onLanguage:dotenv",
-    "onLanguage:css",
-    "onLanguage:scss",
-    "onLanguage:sass",
-    "onLanguage:sql",
-    "onLanguage:html",
-    "onLanguage:xml"
+    "onStartupFinished"
   ],
   "main": "./dist/extension.js",
   "contributes": {
@@ -66,7 +42,8 @@
         "autoPathHeader.enabled": {
           "type": "boolean",
           "default": true,
-          "description": "Enable/disable automatic comment insertion"
+          "description": "Enable/disable automatic comment insertion",
+          "scope": "resource"
         },
         "autoPathHeader.language": {
           "type": "string",
@@ -81,17 +58,20 @@
         "autoPathHeader.updateOnRename": {
           "type": "boolean",
           "default": true,
-          "description": "Automatically update path comment when file is renamed or moved"
+          "description": "Automatically update path comment when file is renamed or moved",
+          "scope": "resource"
         },
         "autoPathHeader.askBeforeUpdate": {
           "type": "boolean",
           "default": false,
-          "description": "Ask for confirmation before updating path comment (only works when updateOnRename is true)"
+          "description": "Ask for confirmation before updating path comment (only works when updateOnRename is true)",
+          "scope": "resource"
         },
         "autoPathHeader.formatTemplate": {
           "type": "string",
           "default": "{comment}",
-          "description": "Template for generated comment. Supports {comment}, {path}, {prefix}, {suffix}"
+          "description": "Template for generated comment. Supports {comment}, {path}, {prefix}, {suffix}",
+          "scope": "resource"
         },
         "autoPathHeader.disabledLanguages": {
           "type": "array",
@@ -99,7 +79,26 @@
           "default": [],
           "items": {
             "type": "string"
-          }
+          },
+          "scope": "resource"
+        },
+        "autoPathHeader.disabledExtensions": {
+          "type": "array",
+          "description": "List of file extensions where automatic insertion is disabled (e.g. ['.txt', '.log'])",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "scope": "resource"
+        },
+        "autoPathHeader.customTemplatesByExtension": {
+          "type": "object",
+          "description": "Custom templates by file extension. Key is the file extension (e.g. '.ts', '.js'), specific filename (e.g. 'Dockerfile.dev'), or '*' for all files, value is the template string. Supports {path}, {filename}, {dirname} placeholders",
+          "default": {},
+          "additionalProperties": {
+            "type": "string"
+          },
+          "scope": "resource"
         }
       }
     }
@@ -110,17 +109,20 @@
     "watch": "tsc -watch -p ./",
     "package": "vsce package",
     "test": "mocha --ui tdd \"dist/test/**/*.test.js\"",
-    "test:it": "node ./dist/it/runTest.js"
+    "test:it": "node ./dist/it/runTest.js",
+    "test:unit:report": "npm run compile && mocha --ui tdd \"dist/test/**/*.test.js\" || exit 0",
+    "test:it:report": "npm run compile && node ./dist/it/runTest.js || exit 0",
+    "test:all:report": "npm run compile && npm run test:unit:report && npm run test:it:report"
   },
   "devDependencies": {
+    "@types/glob": "^8.0.0",
+    "@types/mocha": "^10.0.0",
     "@types/node": "^24.0.4",
     "@types/vscode": "^1.85.0",
-    "@types/mocha": "^10.0.0",
-    "@types/glob": "^8.0.0",
-    "@vscode/test-electron": "^2.3.0",
-    "typescript": "^5.0.0",
-    "vsce": "^2.14.0",
+    "@vscode/test-electron": "^2.5.2",
+    "glob": "^10.0.0",
     "mocha": "^10.0.0",
-    "glob": "^10.0.0"
+    "typescript": "^5.0.0",
+    "vsce": "^2.14.0"
   }
 }

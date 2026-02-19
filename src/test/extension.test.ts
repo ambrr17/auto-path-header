@@ -4,7 +4,7 @@
  */
 
 import * as assert from 'assert';
-import { getCommentForLang, isCommentWithPath } from '../utils/comments';
+import { getCommentForLang, isCommentWithPath, getCommentForCustomTemplate } from '../utils/comments';
 
 suite('Auto Path Header Extension Tests', () => {
   
@@ -91,6 +91,46 @@ suite('Auto Path Header Extension Tests', () => {
   test('getCommentForLang should keep block suffix when templated', () => {
     const result = getCommentForLang('css', 'styles/site.css', '{prefix}{path}{suffix}');
     assert.strictEqual(result, '/* styles/site.css */');
+  });
+
+  test('getCommentForLang should return comment for plaintext language', () => {
+    const result = getCommentForLang('plaintext', 'src/example.txt');
+    assert.strictEqual(result, '# src/example.txt');
+  });
+
+  test('getCommentForLang should return comment for text language', () => {
+    const result = getCommentForLang('text', 'src/example.txt');
+    assert.strictEqual(result, '# src/example.txt');
+  });
+
+  test('getCommentForCustomTemplate should apply language prefix when template does not start with comment', () => {
+    const result = getCommentForCustomTemplate('plaintext', 'src/example.mjd', 'LLL: {path}');
+    assert.strictEqual(result, '# LLL: src/example.mjd');
+  });
+
+  test('getCommentForCustomTemplate should process {filename} placeholder correctly', () => {
+    const result = getCommentForCustomTemplate('plaintext', 'src/example.mjd', 'LLL: {filename}');
+    assert.strictEqual(result, '# LLL: example.mjd');
+  });
+
+  test('getCommentForCustomTemplate should process {dirname} placeholder correctly', () => {
+    const result = getCommentForCustomTemplate('plaintext', 'src/example.mjd', 'LLL: {dirname}');
+    assert.strictEqual(result, '# LLL: src');
+  });
+
+  test('getCommentForCustomTemplate should return processed template with default comment for unsupported language', () => {
+    const result = getCommentForCustomTemplate('unsupported_language', 'src/example.mjd', 'LLL: {path}');
+    assert.strictEqual(result, '# LLL: src/example.mjd');
+  });
+
+  test('getCommentForCustomTemplate should not apply language prefix when template starts with comment character', () => {
+    const result = getCommentForCustomTemplate('plaintext', 'src/example.txt', '# MY CUSTOM: {path}');
+    assert.strictEqual(result, '# MY CUSTOM: src/example.txt');
+  });
+
+  test('getCommentForCustomTemplate should apply language prefix for text language as well', () => {
+    const result = getCommentForCustomTemplate('text', 'src/example.ttt', 'qwerty: {path}');
+    assert.strictEqual(result, '# qwerty: src/example.ttt');
   });
 });
 

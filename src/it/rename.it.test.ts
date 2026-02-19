@@ -36,8 +36,8 @@ suite('Rename/Move updates (integration)', () => {
   test('updates path automatically when updateOnRename=true, askBeforeUpdate=false', async function () {
     this.timeout(30000);
     const config = vscode.workspace.getConfiguration('autoPathHeader');
-    await config.update('updateOnRename', true, vscode.ConfigurationTarget.Workspace);
-    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.Workspace);
+    await config.update('updateOnRename', true, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.WorkspaceFolder);
 
     const uriOld = await createWorkspaceFile('a.ts', '');
     let doc = await vscode.workspace.openTextDocument(uriOld);
@@ -58,8 +58,8 @@ suite('Rename/Move updates (integration)', () => {
   test('updates comment style when language changes on rename', async function () {
     this.timeout(30000);
     const config = vscode.workspace.getConfiguration('autoPathHeader');
-    await config.update('updateOnRename', true, vscode.ConfigurationTarget.Workspace);
-    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.Workspace);
+    await config.update('updateOnRename', true, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.WorkspaceFolder);
 
     const uriOld = await createWorkspaceFile('renameStyle/test.ts', '');
     let doc = await vscode.workspace.openTextDocument(uriOld);
@@ -74,5 +74,85 @@ suite('Rename/Move updates (integration)', () => {
     doc = await vscode.workspace.openTextDocument(uriNew);
     await waitForDocChange(doc);
     assert.strictEqual(doc.lineAt(0).text.trim(), '# renameStyle/test.py');
+  });
+
+  test('updates path with custom template when file is renamed', async function () {
+    this.timeout(30000);
+    const config = vscode.workspace.getConfiguration('autoPathHeader');
+    await config.update('updateOnRename', true, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('customTemplatesByExtension', { '.test.ts': '// 🧪 TEST: {path}' }, vscode.ConfigurationTarget.WorkspaceFolder);
+
+    try {
+      const uriOld = await createWorkspaceFile('src/example.test.ts', '');
+      let doc = await vscode.workspace.openTextDocument(uriOld);
+      await vscode.window.showTextDocument(doc);
+      await waitForDocChange(doc);
+      assert.strictEqual(doc.lineAt(0).text.trim(), '// 🧪 TEST: src/example.test.ts');
+
+      const folder = vscode.workspace.workspaceFolders?.[0].uri!;
+      const uriNew = vscode.Uri.joinPath(folder, 'src/renamed.test.ts');
+      await vscode.workspace.fs.rename(uriOld, uriNew, { overwrite: true });
+
+      doc = await vscode.workspace.openTextDocument(uriNew);
+      await waitForDocChange(doc);
+      assert.strictEqual(doc.lineAt(0).text.trim(), '// 🧪 TEST: src/renamed.test.ts');
+    } finally {
+      await config.update('customTemplatesByExtension', undefined, vscode.ConfigurationTarget.WorkspaceFolder);
+    }
+  });
+
+  test('updates path with specific file template when file is renamed', async function () {
+    this.timeout(30000);
+    const config = vscode.workspace.getConfiguration('autoPathHeader');
+    await config.update('updateOnRename', true, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('customTemplatesByExtension', { 'Dockerfile.dev': '# DEV BUILD: {path}' }, vscode.ConfigurationTarget.WorkspaceFolder);
+
+    try {
+      const uriOld = await createWorkspaceFile('Dockerfile.dev', '// Original comment');
+      let doc = await vscode.workspace.openTextDocument(uriOld);
+      await vscode.window.showTextDocument(doc);
+      await waitForDocChange(doc);
+      assert.strictEqual(doc.lineAt(0).text.trim(), '# DEV BUILD: Dockerfile.dev');
+
+      const folder = vscode.workspace.workspaceFolders?.[0].uri!;
+      const uriNew = vscode.Uri.joinPath(folder, 'Dockerfile.prod');
+      await vscode.workspace.fs.rename(uriOld, uriNew, { overwrite: true });
+
+      doc = await vscode.workspace.openTextDocument(uriNew);
+      await waitForDocChange(doc);
+      // Should fall back to default template since .prod extension doesn't have a custom template
+      assert.ok(doc.lineAt(0).text.trim().startsWith('# Dockerfile.prod'));
+    } finally {
+      await config.update('customTemplatesByExtension', undefined, vscode.ConfigurationTarget.WorkspaceFolder);
+    }
+  });
+
+  test('updates path with compound extension template when file is renamed', async function () {
+    this.timeout(30000);
+    const config = vscode.workspace.getConfiguration('autoPathHeader');
+    await config.update('updateOnRename', true, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('askBeforeUpdate', false, vscode.ConfigurationTarget.WorkspaceFolder);
+    await config.update('customTemplatesByExtension', { '.env.local': '# RENAME LOCAL: {path}' }, vscode.ConfigurationTarget.WorkspaceFolder);
+
+    try {
+      const uriOld = await createWorkspaceFile('config/.env.local', '');
+      let doc = await vscode.workspace.openTextDocument(uriOld);
+      await vscode.window.showTextDocument(doc);
+      await waitForDocChange(doc);
+      assert.strictEqual(doc.lineAt(0).text.trim(), '# RENAME LOCAL: config/.env.local');
+
+      const folder = vscode.workspace.workspaceFolders?.[0].uri!;
+      const uriNew = vscode.Uri.joinPath(folder, 'config/.env.production');
+      await vscode.workspace.fs.rename(uriOld, uriNew, { overwrite: true });
+
+      doc = await vscode.workspace.openTextDocument(uriNew);
+      await waitForDocChange(doc);
+      // Should fall back to default template since .env.production doesn't have a custom template
+      assert.ok(doc.lineAt(0).text.trim().startsWith('# config/.env.production'));
+    } finally {
+      await config.update('customTemplatesByExtension', undefined, vscode.ConfigurationTarget.WorkspaceFolder);
+    }
   });
 });

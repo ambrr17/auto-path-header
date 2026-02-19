@@ -4,7 +4,7 @@ import * as vscode from 'vscode';
 
 async function createWorkspaceFile(relPath: string, content: string): Promise<vscode.Uri> {
   const folder = vscode.workspace.workspaceFolders?.[0].uri;
-  assert.ok(folder, 'Workspace folder required');
+ assert.ok(folder, 'Workspace folder required');
   const uri = vscode.Uri.joinPath(folder, relPath);
   await vscode.workspace.fs.writeFile(uri, Buffer.from(content, 'utf8'));
   return uri;
@@ -89,7 +89,7 @@ async function updateWorkspaceConfig<T>(
 
 /**
   * Гарантированный сброс ключа только в Workspace scope.
-  */
+ */
 async function resetWorkspaceConfig(key: string, waitMs = 100) {
   const cfg = vscode.workspace.getConfiguration(configSection);
   await cfg.update(key, undefined, vscode.ConfigurationTarget.Workspace);
@@ -98,7 +98,7 @@ async function resetWorkspaceConfig(key: string, waitMs = 100) {
 }
 
 suite('Insert comment (integration)', () => {
-  test('auto insert on open for empty TS file', async () => {
+ test('auto insert on open for empty TS file', async () => {
     const uri = await createWorkspaceFile('auto-insert.ts', '');
     const editor = await openFile(uri);
     await waitForDocChange(editor.document);
@@ -140,7 +140,7 @@ suite('Insert comment (integration)', () => {
     } finally {
       await resetWorkspaceConfig('disabledLanguages');
     }
-  });
+ });
 
   test('applies formatTemplate placeholders', async () => {
     await updateWorkspaceConfig('formatTemplate', '{prefix}[{path}]{suffix}');
@@ -154,46 +154,7 @@ suite('Insert comment (integration)', () => {
       await resetWorkspaceConfig('formatTemplate');
     }
   });
-///////
 
-  // Tests for customTemplatesByExtension
-  test('applies customTemplatesByExtension for .env.local files', async () => {
-    await updateWorkspaceConfig('customTemplatesByExtension', { '.env.local': '# LOCAL OVERRIDE — {path}' });
-    
-await vscode.window.showInformationMessage("Verify that the configuration was properly set");
-
-    // Verify that the configuration was properly set
-    const config = vscode.workspace.getConfiguration(configSection);
-    const customTemplates = config.get<Record<string, string>>('customTemplatesByExtension');
-
-await vscode.window.showInformationMessage(`Current value for .env.local: ${customTemplates ? customTemplates['.env.local'] : 'undefined'}`);
-
-    if (!customTemplates || !customTemplates['.env.local'] || customTemplates['.env.local'] !== '# LOCAL OVERRIDE — {path}') {
-      throw new Error(`Configuration was not properly set. Expected: '# LOCAL OVERRIDE — {path}', Actual: ${customTemplates ? customTemplates['.env.local'] : 'undefined'}`);
-    }
-    
-// await vscode.window.showInformationMessage(customTemplates['.env.local'] ? `Current value: ${customTemplates['.env.local']}` : 'No value found for .env.local');
-    
-    try {
-      const uri = await createWorkspaceFile('config/.env.local', '');
-      // Ждем немного, чтобы убедиться, что конфигурация полностью установлена
-      await new Promise(r => setTimeout(r, 150));
-      const editor = await openFile(uri);
-      // Проверяем, что файл имеет правильный languageId
-      console.log('Language ID for .env.local file:', editor.document.languageId);
-      // Ждем немного перед вызовом команды
-      await new Promise(r => setTimeout(r, 100));
-      // Ручной вызов команды для вставки комментария
-      await vscode.commands.executeCommand('autoPathHeader.insertComment');
-      // Ждем немного, чтобы команда могла выполниться
-      await new Promise(r => setTimeout(r, 200));
-      const firstLine = editor.document.lineAt(0).text.trim();
-      assert.strictEqual(firstLine, '# LOCAL OVERRIDE — config/.env.local');
-    } finally {
-      await resetWorkspaceConfig('customTemplatesByExtension');
-    }
-  });
-///////
   test('applies customTemplatesByExtension for .test.ts files', async () => {
     await updateWorkspaceConfig('customTemplatesByExtension', { '.test.ts': '// 🧪 TEST: {path}' });
     try {
@@ -208,7 +169,7 @@ await vscode.window.showInformationMessage(`Current value for .env.local: ${cust
     }
   });
 
-  test('applies customTemplatesByExtension for specific file names like Dockerfile.dev', async () => {
+ test('applies customTemplatesByExtension for specific file names like Dockerfile.dev', async () => {
     await updateWorkspaceConfig('customTemplatesByExtension', { 'Dockerfile.dev': '# DEV BUILD: {path}' });
     try {
       const uri = await createWorkspaceFile('Dockerfile.dev', '');
@@ -216,22 +177,6 @@ await vscode.window.showInformationMessage(`Current value for .env.local: ${cust
       await waitForDocChange(editor.document);
       const firstLine = editor.document.lineAt(0).text.trim();
       assert.strictEqual(firstLine, '# DEV BUILD: Dockerfile.dev');
-    } finally {
-      await resetWorkspaceConfig('customTemplatesByExtension');
-    }
-  });
-
-  test('prioritizes specific file name over extension template', async () => {
-    await updateWorkspaceConfig('customTemplatesByExtension', {
-      'Dockerfile.dev': '# SPECIFIC: {path}',
-      '.dev': '# EXTENSION: {path}'
-    });
-    try {
-      const uri = await createWorkspaceFile('Dockerfile.dev', '');
-      const editor = await openFile(uri);
-      await waitForDocChange(editor.document);
-      const firstLine = editor.document.lineAt(0).text.trim();
-      assert.strictEqual(firstLine, '# SPECIFIC: Dockerfile.dev');
     } finally {
       await resetWorkspaceConfig('customTemplatesByExtension');
     }

@@ -19,6 +19,10 @@ export interface AutoPathHeaderConfig {
 	formatTemplate: string
 	/** Languages where functionality is disabled */
 	disabledLanguages: string[]
+	/** File extensions where functionality is disabled */
+	disabledExtensions: string[]
+	/** Custom templates by file extension */
+	customTemplatesByExtension: Record<string, string>
 }
 
 /**
@@ -34,5 +38,7 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
 		askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
 		formatTemplate,
 		disabledLanguages: cfg.get<string[]>('disabledLanguages', []),
+		disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
+		customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}
 }
