@@ -23,7 +23,7 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
 
     //##############
-    vscode.window.showInformationMessage(`!Hello from my extension: ${document.languageId}`);
+    // vscode.window.showInformationMessage(`!Hello from my extension: ${document.languageId}`);
     // vscode.window.showInformationMessage(document.languageId);
     //##############
 
@@ -82,34 +82,15 @@ export function activate(context: vscode.ExtensionContext) {
           const cfg = readConfig(fileRename.newUri)
           if (!cfg.enabled || !cfg.updateOnRename) continue
 
-          // Проверяем, является ли язык отключенным, но делаем исключение для пользовательских шаблонов
+          // Проверяем, является ли язык отключенным - если да, то игнорируем файл полностью
           const isLanguageDisabled = cfg.disabledLanguages.includes(document.languageId);
+          if (isLanguageDisabled) continue;
           
-          // Проверяем, является ли расширение отключенным
+          // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
           const documentPath = fileRename.newUri.path;
           const fileExtension = path.extname(documentPath).toLowerCase();
           const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension);
-          
-          // Проверяем, есть ли специфический шаблон для этого файла
-          const hasCustomTemplate = Object.keys(cfg.customTemplatesByExtension).some(key => {
-            const fileName = path.basename(newPath);
-            if (key === fileName) return true; // Совпадение по полному имени файла
-
-            // Проверяем совпадение по расширению (включая составные)
-            const ext = path.extname(fileName).toLowerCase();
-            const parts = fileName.split('.');
-            if (parts.length > 1) {
-              for (let i = 1; i < parts.length; i++) {
-                const compoundExt = '.' + parts.slice(i).join('.').toLowerCase();
-                if (key === compoundExt) return true;
-              }
-            }
-            return key === ext; // Совпадение по обычному расширению
-          });
-
-          // Если язык или расширение отключены, но у нас есть пользовательский шаблон для этого конкретного файла/расширения,
-          // все равно обрабатываем файл
-          if ((isLanguageDisabled || isExtensionDisabled) && !hasCustomTemplate) continue;
+          if (isExtensionDisabled) continue;
 
           // Проверка наличия старого комментария
           const firstLine = document.lineAt(0).text.trim()
