@@ -15,7 +15,9 @@ export const messages = {
     fileRenamed: 'File renamed from {0} to {1}',
     updatePathComment: 'Update path comment?',
     pathCommentUpdated: 'Path comment updated successfully',
-    errorUpdatingComment: 'Error updating comment: {0}'
+    errorUpdatingComment: 'Error updating comment: {0}',
+    noCorrectCommentFound: 'No correct comment found',
+    insertNewComment: 'No correct path comment found in file {0}. Insert new comment?'
   },
   ru: {
     extensionName: 'Автозаголовок расположения файла',
@@ -28,7 +30,9 @@ export const messages = {
     fileRenamed: 'Файл переименован с {0} на {1}',
     updatePathComment: 'Обновить комментарий с путём?',
     pathCommentUpdated: 'Комментарий с путём обновлён успешно',
-    errorUpdatingComment: 'Ошибка обновления комментария: {0}'
+    errorUpdatingComment: 'Ошибка обновления комментария: {0}',
+    noCorrectCommentFound: 'Не найден корректный комментарий',
+    insertNewComment: 'Не найден корректный комментарий с путем в файле {0}. Вставить новый комментарий?'
   }
 };
 

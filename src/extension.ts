@@ -22,11 +22,6 @@ export function activate(context: vscode.ExtensionContext) {
   // Автоматическая вставка при открытии файла
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
 
-    //##############
-    // vscode.window.showInformationMessage(`!Hello from my extension: ${document.languageId}`);
-    // vscode.window.showInformationMessage(document.languageId);
-    //##############
-
     try {
       if (document.lineCount > 1 || document.languageId === 'Log') return
       if (document.isUntitled || document.uri.scheme !== 'file') return
@@ -35,7 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
       const cfg = readConfig(document.uri)
       if (!cfg.enabled) return
       if (cfg.disabledLanguages.includes(document.languageId)) return
-      
+
       // Получаем расширение файла и проверяем, не отключено ли оно
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
@@ -69,12 +64,20 @@ export function activate(context: vscode.ExtensionContext) {
           const newPath = vscode.workspace.asRelativePath(fileRename.newUri)
 
           // Проверяем существование файла перед открытием
+          let stat;
           try {
-            const stat = await vscode.workspace.fs.stat(fileRename.newUri);
+            stat = await vscode.workspace.fs.stat(fileRename.newUri);
           } catch (error) {
             // Файл не существует, пропускаем обработку
             continue;
           }
+
+          // #######
+          if (stat.type !== vscode.FileType.File) {
+            vscode.window.showInformationMessage(`это папка — пропускаем event.files.length: ${event.files.length}`)
+            continue; // это папка — пропускаем
+          }
+          // #######
 
           const document = await vscode.workspace.openTextDocument(fileRename.newUri)
 
@@ -85,7 +88,7 @@ export function activate(context: vscode.ExtensionContext) {
           // Проверяем, является ли язык отключенным - если да, то игнорируем файл полностью
           const isLanguageDisabled = cfg.disabledLanguages.includes(document.languageId);
           if (isLanguageDisabled) continue;
-          
+
           // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
           const documentPath = fileRename.newUri.path;
           const fileExtension = path.extname(documentPath).toLowerCase();
@@ -94,7 +97,23 @@ export function activate(context: vscode.ExtensionContext) {
 
           // Проверка наличия старого комментария
           const firstLine = document.lineAt(0).text.trim()
-          if (!isCommentWithPath(firstLine, oldPath)) continue
+          if (!isCommentWithPath(firstLine, oldPath)) {
+            // Если в файле не найден комментарий с предыдущим путем, уведомляем пользователя
+            const language = vscode.env.language;
+            const fileName = path.basename(newPath);
+            
+            const result = await vscode.window.showInformationMessage(
+              getMessage('insertNewComment', language, fileName),
+              'Yes', 'No'
+            );
+            
+            if (result === 'Yes') {
+              // Вставляем новый комментарий как при создании нового файла
+              await ensureCommentAtTop(document, newPath, cfg);
+            }
+            // В любом случае продолжаем с остальными файлами
+            continue;
+          }
 
           ///////////////
           // const msg = await vscode.window.showInformationMessage(`+++ ${oldPath}`,
@@ -167,7 +186,7 @@ export function activate(context: vscode.ExtensionContext) {
         )
         return
       }
-      
+
       // Проверяем отключение по расширению файла
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
