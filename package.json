@@ -12,6 +12,7 @@
     "type": "git",
     "url": "https://github.com/ambrr17/auto-path-header.git"
   },
+  "icon": "images/icon.png",
   "keywords": [
     "vscode",
     "comment",
@@ -23,6 +24,7 @@
   "categories": [
     "Other"
   ],
+  "license": "MIT",
   "activationEvents": [
     "onCommand:autoPathHeader.insertComment",
     "onStartupFinished"
@@ -96,6 +98,27 @@
           "description": "Custom templates by file extension. Key is the file extension (e.g. '.ts', '.js'), specific filename (e.g. 'Dockerfile.dev'), or '*' for all files, value is the template string. Supports {path}, {filename}, {dirname} placeholders",
           "default": {},
           "additionalProperties": {
+            "type": "string"
+          },
+          "scope": "resource"
+        },
+        "autoPathHeader.ignoredDirectories": {
+          "type": "array",
+          "description": "List of directories to ignore (relative paths from workspace root)",
+          "default": [
+            "node_modules",
+            "vendor",
+            "vendors",
+            "dist",
+            "build",
+            ".git",
+            ".svn",
+            ".hg",
+            "target",
+            "out",
+            "bin"
+          ],
+          "items": {
             "type": "string"
           },
           "scope": "resource"

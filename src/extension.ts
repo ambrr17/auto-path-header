@@ -10,6 +10,7 @@ import { getMessage } from './localization'
 import { isCommentWithPath } from './utils/comments'
 import { readConfig } from './services/config'
 import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
+import { isInIgnoredDirectory } from './utils/directoryUtils'
 
 export function activate(context: vscode.ExtensionContext) {
   // Подписка на изменения конфигурации для обновления кэша
@@ -35,6 +36,9 @@ export function activate(context: vscode.ExtensionContext) {
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
       if (cfg.disabledExtensions.includes(fileExtension)) return
+
+      // Check if the file is in an ignored directory
+      if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) return
 
       const ok = await ensureCommentAtTop(document, filePath, cfg)
       if (!ok) return
@@ -94,6 +98,10 @@ export function activate(context: vscode.ExtensionContext) {
           const fileExtension = path.extname(documentPath).toLowerCase();
           const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension);
           if (isExtensionDisabled) continue;
+
+          // Check if the new file path is in an ignored directory
+          const isNewPathInIgnoredDir = isInIgnoredDirectory(newPath, cfg.ignoredDirectories);
+          if (isNewPathInIgnoredDir) continue;
 
           // Проверка наличия старого комментария
           const firstLine = document.lineAt(0).text.trim()
@@ -196,6 +204,15 @@ export function activate(context: vscode.ExtensionContext) {
           getMessage('extensionDisabled', language, fileExtension)
         )
         return
+      }
+
+      // Check if the file is in an ignored directory
+      if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) {
+        const language = vscode.env.language;
+        vscode.window.showInformationMessage(
+          getMessage('directoryIgnored', language, path.dirname(filePath))
+        );
+        return;
       }
 
       await ensureCommentAtTop(document, filePath, cfg)

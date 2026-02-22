@@ -21,6 +21,8 @@ export interface AutoPathHeaderConfig {
 	disabledLanguages: string[]
 	/** File extensions where functionality is disabled */
 	disabledExtensions: string[]
+	/** Directories to ignore (relative paths from workspace root) */
+	ignoredDirectories: string[]
 	/** Custom templates by file extension */
 	customTemplatesByExtension: Record<string, string>
 }
@@ -32,13 +34,14 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
 	const cfg = vscode.workspace.getConfiguration('autoPathHeader', scope)
 	const formatTemplate = cfg.get<string>('formatTemplate', '{comment}')?.trim() || '{comment}'
 	return {
-		enabled: cfg.get<boolean>('enabled', true),
-		language: cfg.get<SupportedUiLanguage>('language', 'auto'),
-		updateOnRename: cfg.get<boolean>('updateOnRename', true),
-		askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
-		formatTemplate,
-		disabledLanguages: cfg.get<string[]>('disabledLanguages', []),
-		disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
-		customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
+	    enabled: cfg.get<boolean>('enabled', true),
+	    language: cfg.get<SupportedUiLanguage>('language', 'auto'),
+	    updateOnRename: cfg.get<boolean>('updateOnRename', true),
+	    askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
+	    formatTemplate,
+	    disabledLanguages: cfg.get<string[]>('disabledLanguages', []),
+	    disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
+	    ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
+	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}
 }

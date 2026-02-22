@@ -17,7 +17,8 @@ export const messages = {
     pathCommentUpdated: 'Path comment updated successfully',
     errorUpdatingComment: 'Error updating comment: {0}',
     noCorrectCommentFound: 'No correct comment found',
-    insertNewComment: 'No correct path comment found in file {0}. Insert new comment?'
+    insertNewComment: 'No correct path comment found in file {0}. Insert new comment?',
+    directoryIgnored: 'File in ignored directory {0}'
   },
   ru: {
     extensionName: 'Автозаголовок расположения файла',
@@ -32,7 +33,8 @@ export const messages = {
     pathCommentUpdated: 'Комментарий с путём обновлён успешно',
     errorUpdatingComment: 'Ошибка обновления комментария: {0}',
     noCorrectCommentFound: 'Не найден корректный комментарий',
-    insertNewComment: 'Не найден корректный комментарий с путем в файле {0}. Вставить новый комментарий?'
+    insertNewComment: 'Не найден корректный комментарий с путем в файле {0}. Вставить новый комментарий?',
+    directoryIgnored: 'Файл в игнорируемой директории {0}'
   }
 };
 

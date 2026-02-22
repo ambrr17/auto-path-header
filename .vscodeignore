@@ -1,7 +1,20 @@
-# Exclude tests and fixtures from VSIX
+# Tests
 src/test/**
 src/it/**
+tests
 .vscode-test/**
 .vscode-testworkspace/**
 INTEGRATION_TESTS_RU.md
 TESTS_RU.md
+
+# Dev artifacts
+node_modules
+.github
+.vscode
+coverage
+*.tsbuildinfo
+*.map
+
+# Git
+.git
+.gitignore
