@@ -24,13 +24,12 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
 
     try {
-      if (document.lineCount > 1 || document.languageId === 'Log') return
+      if (document.lineCount > 1) return
       if (document.isUntitled || document.uri.scheme !== 'file') return
 
       const filePath = vscode.workspace.asRelativePath(document.uri)
       const cfg = readConfig(document.uri)
       if (!cfg.enabled) return
-      if (cfg.disabledLanguages.includes(document.languageId)) return
 
       // Получаем расширение файла и проверяем, не отключено ли оно
       const documentPath = document.uri.path;
@@ -88,10 +87,6 @@ export function activate(context: vscode.ExtensionContext) {
           // Читаем конфигурацию после открытия документа, чтобы получить актуальные настройки
           const cfg = readConfig(fileRename.newUri)
           if (!cfg.enabled || !cfg.updateOnRename) continue
-
-          // Проверяем, является ли язык отключенным - если да, то игнорируем файл полностью
-          const isLanguageDisabled = cfg.disabledLanguages.includes(document.languageId);
-          if (isLanguageDisabled) continue;
 
           // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
           const documentPath = fileRename.newUri.path;
@@ -187,13 +182,6 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const cfg = readConfig(document.uri)
-      if (cfg.disabledLanguages.includes(document.languageId)) {
-        const language = vscode.env.language
-        vscode.window.showInformationMessage(
-          getMessage('languageDisabled', language, document.languageId)
-        )
-        return
-      }
 
       // Проверяем отключение по расширению файла
       const documentPath = document.uri.path;

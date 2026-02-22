@@ -17,8 +17,6 @@ export interface AutoPathHeaderConfig {
 	askBeforeUpdate: boolean
 	/** Template for generated comment */
 	formatTemplate: string
-	/** Languages where functionality is disabled */
-	disabledLanguages: string[]
 	/** File extensions where functionality is disabled */
 	disabledExtensions: string[]
 	/** Directories to ignore (relative paths from workspace root) */
@@ -39,7 +37,6 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
 	    updateOnRename: cfg.get<boolean>('updateOnRename', true),
 	    askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
 	    formatTemplate,
-	    disabledLanguages: cfg.get<string[]>('disabledLanguages', []),
 	    disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
 	    ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),

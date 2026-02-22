@@ -75,9 +75,9 @@
           "description": "Template for generated comment. Supports {comment}, {path}, {prefix}, {suffix}",
           "scope": "resource"
         },
-        "autoPathHeader.disabledLanguages": {
+        "autoPathHeader.disabledExtensions": {
           "type": "array",
-          "description": "List of VS Code language IDs where automatic insertion is disabled",
+          "description": "List of file extensions where automatic insertion is disabled (e.g. ['.txt', '.log'])",
           "default": [],
           "items": {
             "type": "string"
