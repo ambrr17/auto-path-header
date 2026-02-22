@@ -17,7 +17,7 @@ const LANGUAGE_STYLES: Record<string, CommentStyle> = {
 	rust: { prefix: '// ' },
 	swift: { prefix: '// ' },
 	kotlin: { prefix: '// ' },
-	php: { prefix: '// ' },
+	php: { prefix: '<?php // ', suffix: ' ?>' },
 	python: { prefix: '# ' },
 	shellscript: { prefix: '# ' },
 	ruby: { prefix: '# ' },
