@@ -84,10 +84,17 @@
           },
           "scope": "resource"
         },
-        "autoPathHeader.disabledExtensions": {
+        "autoPathHeader.allowedOnlyExtensions": {
           "type": "array",
-          "description": "List of file extensions where automatic insertion is disabled (e.g. ['.txt', '.log'])",
-          "default": [],
+          "description": "List of file extensions that are allowed for automatic insertion. Extensions not in this list will be ignored. This setting is applied before disabledExtensions.",
+          "default": [
+            ".js", ".ts", ".jsx", ".tsx", ".java", ".c", ".cpp", ".h", ".hpp", ".cs",
+            ".go", ".rs", ".swift", ".kt", ".kts", ".php", ".py", ".sh", ".bash",
+            ".zsh", ".rb", ".pl", ".pm", ".env", ".txt", ".md", ".markdown", ".css",
+            ".scss", ".sass", ".less", ".sql", ".lua", ".hs", ".html", ".htm",
+            ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
+            ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
+          ],
           "items": {
             "type": "string"
           },

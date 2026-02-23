@@ -19,6 +19,8 @@ export interface AutoPathHeaderConfig {
 	formatTemplate: string
 	/** File extensions where functionality is disabled */
 	disabledExtensions: string[]
+	/** File extensions that are allowed for automatic insertion. Extensions not in this list will be ignored. */
+	allowedOnlyExtensions: string[]
 	/** Directories to ignore (relative paths from workspace root) */
 	ignoredDirectories: string[]
 	/** Custom templates by file extension */
@@ -38,6 +40,14 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
 	    askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
 	    formatTemplate,
 	    disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
+	    allowedOnlyExtensions: cfg.get<string[]>('allowedOnlyExtensions', [
+            ".js", ".ts", ".jsx", ".tsx", ".java", ".c", ".cpp", ".h", ".hpp", ".cs",
+            ".go", ".rs", ".swift", ".kt", ".kts", ".php", ".py", ".sh", ".bash",
+            ".zsh", ".rb", ".pl", ".pm", ".env", ".txt", ".md", ".markdown", ".css",
+            ".scss", ".sass", ".less", ".sql", ".lua", ".hs", ".html", ".htm",
+            ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
+            ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
+        ]),
 	    ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}

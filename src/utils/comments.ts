@@ -6,9 +6,8 @@ type CommentStyle = {
 	suffix?: string
 }
 
-
-// Mapping from file extensions to comment styles
-const EXTENSION_STYLES: Record<string, CommentStyle> = {
+// Default mapping from file extensions to comment styles
+const DEFAULT_EXTENSION_STYLES: Record<string, CommentStyle> = {
 	'.js': { prefix: '// ' },
 	'.ts': { prefix: '// ' },
 	'.jsx': { prefix: '// ' },
@@ -172,15 +171,15 @@ export function getCommentStyleByExtension(filePath: string): CommentStyle | und
 	const ext = path.extname(filePath).toLowerCase();
 	
 	// First, try to match the full extension
-	if (EXTENSION_STYLES[ext]) {
-		return EXTENSION_STYLES[ext];
+	if (DEFAULT_EXTENSION_STYLES[ext]) {
+		return DEFAULT_EXTENSION_STYLES[ext];
 	}
 	
 	// If no match found, try to match by checking if the file is a special case
 	// like Dockerfile, Makefile, etc. that don't have extensions
 	const basename = path.basename(filePath).toLowerCase();
-	if (EXTENSION_STYLES[`.${basename}`]) {
-		return EXTENSION_STYLES[`.${basename}`];
+	if (DEFAULT_EXTENSION_STYLES[`.${basename}`]) {
+		return DEFAULT_EXTENSION_STYLES[`.${basename}`];
 	}
 	
 	// Try compound extensions like .env.local, .gitignore, etc.
@@ -188,8 +187,8 @@ export function getCommentStyleByExtension(filePath: string): CommentStyle | und
 	if (parts.length > 1) {
 		for (let i = 1; i < parts.length; i++) {
 			const compoundExt = '.' + parts.slice(i).join('.').toLowerCase();
-			if (EXTENSION_STYLES[compoundExt]) {
-				return EXTENSION_STYLES[compoundExt];
+			if (DEFAULT_EXTENSION_STYLES[compoundExt]) {
+				return DEFAULT_EXTENSION_STYLES[compoundExt];
 			}
 		}
 	}
