@@ -24,18 +24,42 @@ export function activate(context: vscode.ExtensionContext) {
   const disposable = vscode.workspace.onDidOpenTextDocument(async (document) => {
 
     try {
-      if (document.lineCount > 1 || document.languageId === 'Log') return
+      if (document.lineCount > 1) return
       if (document.isUntitled || document.uri.scheme !== 'file') return
 
       const filePath = vscode.workspace.asRelativePath(document.uri)
       const cfg = readConfig(document.uri)
       if (!cfg.enabled) return
-      if (cfg.disabledLanguages.includes(document.languageId)) return
 
-      // Получаем расширение файла и проверяем, не отключено ли оно
+      // Получаем расширение файла и проверяем, разрешено ли оно
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
-      if (cfg.disabledExtensions.includes(fileExtension)) return
+      const fileName = path.basename(documentPath);
+      
+      // Проверяем, есть ли пользовательский шаблон для этого файла
+      const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
+                                  cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+                                  // Проверяем составные расширения (например, .env.local)
+                                  (() => {
+                                    const parts = fileName.split('.');
+                                    if (parts.length > 1) {
+                                      for (let i = 1; i < parts.length; i++) {
+                                        const compoundExt = '.' + parts.slice(i).join('.');
+                                        if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                                          return true;
+                                        }
+                                      }
+                                    }
+                                    return false;
+                                  })();
+      
+      // Проверяем, разрешено ли расширение в allowedOnlyExtensions
+      // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
+      if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) return
+      
+      // Проверяем, не отключено ли расширение в disabledExtensions
+      // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
+      if (cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate) return
 
       // Check if the file is in an ignored directory
       if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) return
@@ -89,14 +113,35 @@ export function activate(context: vscode.ExtensionContext) {
           const cfg = readConfig(fileRename.newUri)
           if (!cfg.enabled || !cfg.updateOnRename) continue
 
-          // Проверяем, является ли язык отключенным - если да, то игнорируем файл полностью
-          const isLanguageDisabled = cfg.disabledLanguages.includes(document.languageId);
-          if (isLanguageDisabled) continue;
-
-          // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
+          // Проверяем, разрешено ли расширение в allowedOnlyExtensions
           const documentPath = fileRename.newUri.path;
           const fileExtension = path.extname(documentPath).toLowerCase();
-          const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension);
+          const fileName = path.basename(documentPath);
+          
+          // Проверяем, есть ли пользовательский шаблон для этого файла
+          const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
+                                      cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+                                      // Проверяем составные расширения (например, .env.local)
+                                      (() => {
+                                        const parts = fileName.split('.');
+                                        if (parts.length > 1) {
+                                          for (let i = 1; i < parts.length; i++) {
+                                            const compoundExt = '.' + parts.slice(i).join('.');
+                                            if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                                              return true;
+                                            }
+                                          }
+                                        }
+                                        return false;
+                                      })();
+          
+          // Проверяем, разрешено ли расширение в allowedOnlyExtensions
+          // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
+          if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) continue;
+          
+          // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
+          // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
+          const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate;
           if (isExtensionDisabled) continue;
 
           // Check if the new file path is in an ignored directory
@@ -187,18 +232,42 @@ export function activate(context: vscode.ExtensionContext) {
       }
 
       const cfg = readConfig(document.uri)
-      if (cfg.disabledLanguages.includes(document.languageId)) {
+
+      // Проверяем разрешение по расширению файла
+      const documentPath = document.uri.path;
+      const fileExtension = path.extname(documentPath).toLowerCase();
+      const fileName = path.basename(documentPath);
+      
+      // Проверяем, есть ли пользовательский шаблон для этого файла
+      const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
+                                  cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+                                  // Проверяем составные расширения (например, .env.local)
+                                  (() => {
+                                    const parts = fileName.split('.');
+                                    if (parts.length > 1) {
+                                      for (let i = 1; i < parts.length; i++) {
+                                        const compoundExt = '.' + parts.slice(i).join('.');
+                                        if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                                          return true;
+                                        }
+                                      }
+                                    }
+                                    return false;
+                                  })();
+      
+      // Проверяем, разрешено ли расширение в allowedOnlyExtensions
+      // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
+      if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) {
         const language = vscode.env.language
         vscode.window.showInformationMessage(
-          getMessage('languageDisabled', language, document.languageId)
+          getMessage('extensionDisabled', language, fileExtension)
         )
         return
       }
-
+      
       // Проверяем отключение по расширению файла
-      const documentPath = document.uri.path;
-      const fileExtension = path.extname(documentPath).toLowerCase();
-      if (cfg.disabledExtensions.includes(fileExtension)) {
+      // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
+      if (cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate) {
         const language = vscode.env.language
         vscode.window.showInformationMessage(
           getMessage('extensionDisabled', language, fileExtension)

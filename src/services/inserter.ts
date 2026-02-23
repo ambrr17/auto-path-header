@@ -5,7 +5,7 @@
  */
 import * as vscode from 'vscode'
 import * as path from 'path';
-import { getCommentForLang, isCommentWithPath, getCommentForFileExtension, getCommentForCustomTemplate } from '../utils/comments'
+import { isCommentWithPath, getCommentForFileExtension, getCommentForCustomTemplate, getCommentByFileExtension } from '../utils/comments'
 import { AutoPathHeaderConfig } from './config'
 
 /**
@@ -17,8 +17,6 @@ export async function ensureCommentAtTop(
 	relativePath: string,
 	config: Pick<AutoPathHeaderConfig, 'formatTemplate' | 'customTemplatesByExtension'>
 ): Promise<boolean> {
-	const langId = document.languageId
-
 	// Use the custom template by extension if available, otherwise use formatTemplate
 	const templateResult = getCommentForFileExtension(relativePath, config.customTemplatesByExtension, config.formatTemplate);
 
@@ -28,10 +26,12 @@ export async function ensureCommentAtTop(
 
 	if (templateResult.isCustom) {
 		// If we have a custom template, we need to process it with the special placeholders
+		// Use the document's file extension to determine language-specific formatting if needed
+		const langId = document.languageId; // Fallback to languageId if needed by custom template
 		comment = getCommentForCustomTemplate(langId, relativePath, templateResult.template);
 	} else {
-		// Otherwise, use the standard template processing
-		comment = getCommentForLang(langId, relativePath, templateResult.template);
+		// Use the new extension-based comment function instead of languageId-based one
+		comment = getCommentByFileExtension(relativePath, templateResult.template);
 	}
 
 	if (!comment) return false
@@ -66,8 +66,6 @@ export async function replaceTopComment(
 	newRelativePath: string,
 	config: Pick<AutoPathHeaderConfig, 'formatTemplate' | 'customTemplatesByExtension'>
 ): Promise<boolean> {
-	const langId = document.languageId
-
 	// Use the custom template by extension if available, otherwise use formatTemplate
 	const templateResult = getCommentForFileExtension(newRelativePath, config.customTemplatesByExtension, config.formatTemplate);
 
@@ -77,10 +75,12 @@ export async function replaceTopComment(
 
 	if (templateResult.isCustom) {
 		// If we have a custom template, we need to process it with the special placeholders
+		// Use the document's file extension to determine language-specific formatting if needed
+		const langId = document.languageId; // Fallback to languageId if needed by custom template
 		newComment = getCommentForCustomTemplate(langId, newRelativePath, templateResult.template);
 	} else {
-		// Otherwise, use the standard template processing
-		newComment = getCommentForLang(langId, newRelativePath, templateResult.template);
+		// Use the new extension-based comment function instead of languageId-based one
+		newComment = getCommentByFileExtension(newRelativePath, templateResult.template);
 	}
 
 	if (!newComment) return false

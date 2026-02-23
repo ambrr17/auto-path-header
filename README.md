@@ -9,7 +9,7 @@ Author: Niklis
 ## Features
 
 - Automatic insertion of the file path on open
-- Support for many programming languages
+- Support for many file extensions
 - Duplicate comment prevention
 - RU/EN localization support
 - Configurable settings
@@ -17,22 +17,26 @@ Author: Niklis
 - Automatic path update on rename/move
 - Manual comment insertion via Command Palette
 
-## Supported languages
+## Supported file extensions
 
 ### Single-line comments (`//`)
-- JavaScript, TypeScript, Java, C, C++, C#, Go, Rust, Swift, Kotlin, PHP
+- .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php
 
 ### Hash comments (`#`)
-- Python, Shell Script, Ruby, Perl, .env
+- .py, .sh, .bash, .zsh, .rb, .pl, .pm, .env, .txt, .yml, .yaml
 
 ### Block comments (`/* */`)
-- CSS, SCSS, Sass
+- .css, .scss, .sass, .less, .json
 
 ### SQL comments (`--`)
-- SQL
+- .sql, .lua, .hs
 
 ### HTML comments (`<!-- -->`)
-- HTML, XML
+- .html, .htm, .xml, .md, .markdown, .svg
+
+### Other comment styles
+- .ini (semicolon comments `; `)
+- .bat, .cmd (REM comments `@REM `)
 
 ## Installation
 
@@ -43,7 +47,7 @@ Author: Niklis
 
 ## Activation
 
-The extension activates immediately after installation to handle files with any extension. It monitors file opening events and automatically inserts path comments according to your configuration.
+The extension activates immediately after installation to handle files with any extension. It monitors file opening events and automatically inserts path comments based on the file extension according to your configuration.
 
 ## Settings
 
@@ -52,7 +56,6 @@ The extension activates immediately after installation to handle files with any 
 - `autoPathHeader.updateOnRename` — automatically update comment on rename/move
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 - `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
-- `autoPathHeader.disabledLanguages` — array of VS Code language IDs where auto insertion/updates are disabled.
 - `autoPathHeader.disabledExtensions` — array of file extensions where auto insertion/updates are disabled (e.g. ['.log', '.tmp']).
 - `autoPathHeader.customTemplatesByExtension` — custom templates by file extension. Supports `{path}`, `{filename}`, `{dirname}` placeholders. Priority: customTemplatesByExtension[extension] → formatTemplate → default language comment format. The extension is determined by path.extname(filePath) (including dot), case-insensitive. This supports compound extensions like `.env.local` as well as specific file names like `Dockerfile.dev`.
 
@@ -80,21 +83,6 @@ Examples:
   "autoPathHeader.formatTemplate": "// File: {path}"
 }
 ```
-
-### Disabling languages
-
-If you need to disable automatic comments for specific languages (for example, Markdown), add their language identifiers to `disabledLanguages`:
-
-```jsonc
-{
-  "autoPathHeader.disabledLanguages": [
-    "markdown",
-    "plaintext"
-  ]
-}
-```
-
-The manual command will respect this list and show a message instead of inserting a comment.
 
 ### Disabling by file extension
 
@@ -157,7 +145,7 @@ Note that specific file names and extensions will take precedence over the wildc
 
 ## Usage
 
-- Works automatically on file open (for supported languages)
+- Works automatically on file open (for supported file extensions)
 - Manual insertion:
   1. `Ctrl+Shift+P` → "Auto Path Header: Insert Path Comment"
 

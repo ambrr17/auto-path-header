@@ -33,19 +33,20 @@ export function greet() {
 ## Возможности
 
 - ✅ Автоматическая вставка пути при открытии файла
-- ✅ Поддержка множества языков
+- ✅ Поддержка множества расширений файлов
 - ✅ Обновление пути при переименовании и перемещении
 - ✅ Кастомный шаблон комментария
 - ✅ Ручная вставка через команду
 
-## Поддерживаемые языки
+## Поддерживаемые расширения файлов
 | Тип        | Примеры                  |
 | ---------- | ------------------------ |
-| `//`       | JS, TS, Java, C, C++, C#, Go, Rust, Swift, Kotlin, PHP |
-| `#`        | Python, Shell, Ruby, Perl, .env      |
-| `/* */`    | CSS, SCSS, Sass          |
-| `--`       | SQL                      |
-| `<!-- -->` | HTML, XML                |
+| `//`       | .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php |
+| `#`        | .py, .sh, .bash, .zsh, .rb, .pl, .pm, .env, .txt, .yml, .yaml |
+| `/* */`    | .css, .scss, .sass, .less, .json |
+| `--`       | .sql, .lua, .hs |
+| `<!-- -->` | .html, .htm, .xml, .md, .markdown, .svg |
+| Другие     | .ini (комментарии `; `), .bat, .cmd (комментарии `@REM `) |
 
 
 ## Установка
@@ -82,7 +83,6 @@ export function greet() {
 | `autoPathHeader.updateOnRename`    | true         | Обновлять путь при переименовании           |
 | `autoPathHeader.askBeforeUpdate`   | true         | Запрашивать подтверждение перед обновлением |
 | `autoPathHeader.formatTemplate`    | `{comment}`  | Шаблон комментария                          |
-| `autoPathHeader.disabledLanguages` | []           | Языки, в которых расширение отключено       |
 | `autoPathHeader.disabledExtensions` | []           | Расширения файлов, в которых расширение отключено |
 
 ### Настройка шаблона
@@ -109,21 +109,6 @@ export function greet() {
   "autoPathHeader.formatTemplate": "// File: {path}"
 }
 ```
-
-### Отключение языков
-
-Чтобы не вставлять комментарии в конкретных языках (например, Markdown), добавьте их идентификаторы:
-
-```jsonc
-{
-  "autoPathHeader.disabledLanguages": [
-    "markdown",
-    "plaintext"
-  ]
-}
-```
-
-Даже ручная команда учтёт этот список и покажет сообщение вместо вставки.
 
 ### Отключение по расширению файла
 
