@@ -95,111 +95,204 @@ export function activate(context: vscode.ExtensionContext) {
           const oldPath = vscode.workspace.asRelativePath(fileRename.oldUri)
           const newPath = vscode.workspace.asRelativePath(fileRename.newUri)
 
-          // Проверяем существование файла перед открытием
+          // Проверяем существование пути перед обработкой
           let stat;
           try {
             stat = await vscode.workspace.fs.stat(fileRename.newUri);
           } catch (error) {
-            // Файл не существует, пропускаем обработку
+            // Путь не существует, пропускаем обработку
             continue;
           }
 
-          // #######
-          // if (stat.type !== vscode.FileType.File) {
-          //   vscode.window.showInformationMessage(`это папка — пропускаем event.files.length: ${event.files.length}`)
-          //   continue; // это папка — пропускаем
-          // }
-          // #######
+          // Если это файл — обрабатываем как раньше
+          if (stat.type === vscode.FileType.File) {
+            const document = await vscode.workspace.openTextDocument(fileRename.newUri)
 
-          const document = await vscode.workspace.openTextDocument(fileRename.newUri)
+            // Читаем конфигурацию после открытия документа, чтобы получить актуальные настройки
+            const cfg = readConfig(fileRename.newUri)
+            if (!cfg.enabled || !cfg.updateOnRename) continue
 
-          // Читаем конфигурацию после открытия документа, чтобы получить актуальные настройки
-          const cfg = readConfig(fileRename.newUri)
-          if (!cfg.enabled || !cfg.updateOnRename) continue
-
-          // Проверяем, разрешено ли расширение в allowedOnlyExtensions
-          const documentPath = fileRename.newUri.path;
-          const fileExtension = path.extname(documentPath).toLowerCase();
-          const fileName = path.basename(documentPath);
-          // Проверяем, есть ли пользовательский шаблон для этого файла
-          const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
-            cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
-            // Проверяем составные расширения (например, .env.local)
-            (() => {
-              const parts = fileName.split('.');
-              if (parts.length > 1) {
-                for (let i = 1; i < parts.length; i++) {
-                  const compoundExt = '.' + parts.slice(i).join('.');
-                  if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
-                    return true;
+            // Проверяем, разрешено ли расширение в allowedOnlyExtensions
+            const documentPath = fileRename.newUri.path;
+            const fileExtension = path.extname(documentPath).toLowerCase();
+            const fileName = path.basename(documentPath);
+            // Проверяем, есть ли пользовательский шаблон для этого файла
+            const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
+              cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+              // Проверяем составные расширения (например, .env.local)
+              (() => {
+                const parts = fileName.split('.');
+                if (parts.length > 1) {
+                  for (let i = 1; i < parts.length; i++) {
+                    const compoundExt = '.' + parts.slice(i).join('.');
+                    if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                      return true;
+                    }
                   }
                 }
+                return false;
+              })();
+
+            if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) continue;
+
+            const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate;
+            if (isExtensionDisabled) continue;
+
+            const isNewPathInIgnoredDir = isInIgnoredDirectory(newPath, cfg.ignoredDirectories);
+            if (isNewPathInIgnoredDir) continue;
+
+            if (!isInAllowedDirectory(newPath, cfg.allowedOnlyDirectories)) continue;
+
+            // Проверка наличия старого комментария
+            const firstLine = document.lineAt(0).text.trim()
+            if (!isCommentWithPath(firstLine, oldPath)) {
+              // Если в файле не найден комментарий с предыдущим путем, уведомляем пользователя
+              const language = vscode.env.language;
+              const fileName = path.basename(newPath);
+
+              const result = await vscode.window.showInformationMessage(
+                getMessage('insertNewComment', language, fileName),
+                'Yes', 'No'
+              );
+
+              if (result === 'Yes') {
+                await ensureCommentAtTop(document, newPath, cfg);
               }
-              return false;
-            })();
-
-          // Проверяем, разрешено ли расширение в allowedOnlyExtensions
-          // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
-          if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) continue;
-
-          // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
-          // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
-          const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate;
-          if (isExtensionDisabled) continue;
-
-          // Check if the new file path is in an ignored directory
-          const isNewPathInIgnoredDir = isInIgnoredDirectory(newPath, cfg.ignoredDirectories);
-          if (isNewPathInIgnoredDir) continue;
-
-          // if allowed-only directories are set, skip paths outside them
-          if (!isInAllowedDirectory(newPath, cfg.allowedOnlyDirectories)) continue;
-
-          // Проверка наличия старого комментария
-          const firstLine = document.lineAt(0).text.trim()
-          if (!isCommentWithPath(firstLine, oldPath)) {
-            // Если в файле не найден комментарий с предыдущим путем, уведомляем пользователя
-            const language = vscode.env.language;
-            const fileName = path.basename(newPath);
-
-            const result = await vscode.window.showInformationMessage(
-              getMessage('insertNewComment', language, fileName),
-              'Yes', 'No'
-            );
-
-            if (result === 'Yes') {
-              // Вставляем новый комментарий как при создании нового файла
-              await ensureCommentAtTop(document, newPath, cfg);
+              continue;
             }
-            // В любом случае продолжаем с остальными файлами
-            continue;
-          }
 
-          ///////////////
-          // const msg = await vscode.window.showInformationMessage(`+++ ${oldPath}`,
-          //   'Yes', 'No');
-          // if (msg !== 'Yes') continue
-          ///////////////
+            if (cfg.askBeforeUpdate) {
+              const language = vscode.env.language
+              const message = getMessage('updatePathComment', language)
+              const oldName = oldPath.split('/').pop() || oldPath
+              const newName = newPath.split('/').pop() || newPath
+              const renameInfo = getMessage('fileRenamed', language, oldName, newName)
 
-          if (cfg.askBeforeUpdate) {
-            const language = vscode.env.language
-            const message = getMessage('updatePathComment', language)
-            const oldName = oldPath.split('/').pop() || oldPath
-            const newName = newPath.split('/').pop() || newPath
-            const renameInfo = getMessage('fileRenamed', language, oldName, newName)
+              const result = await vscode.window.showInformationMessage(
+                `${renameInfo}\n${message}`,
+                'Yes', 'No'
+              )
+              if (result !== 'Yes') continue
+            }
 
-            const result = await vscode.window.showInformationMessage(
-              `${renameInfo}\n${message}`,
-              'Yes', 'No'
-            )
-            if (result !== 'Yes') continue
-          }
+            const ok = await replaceTopComment(document, oldPath, newPath, cfg)
+            if (ok) {
+              const language = vscode.env.language
+              vscode.window.showInformationMessage(
+                getMessage('pathCommentUpdated', language)
+              )
+            }
 
-          const ok = await replaceTopComment(document, oldPath, newPath, cfg)
-          if (ok) {
-            const language = vscode.env.language
-            vscode.window.showInformationMessage(
-              getMessage('pathCommentUpdated', language)
-            )
+          } else if (stat.type === vscode.FileType.Directory) {
+            // Обработка переименования директории — рекурсивно пробегаем все файлы в новой директории
+            // Собираем список файлов
+            async function listFilesRecursively(uri: vscode.Uri): Promise<vscode.Uri[]> {
+              const result: vscode.Uri[] = []
+              const entries = await vscode.workspace.fs.readDirectory(uri)
+              for (const [name, type] of entries) {
+                const childUri = vscode.Uri.joinPath(uri, name)
+                if (type === vscode.FileType.File) {
+                  result.push(childUri)
+                } else if (type === vscode.FileType.Directory) {
+                  const nested = await listFilesRecursively(childUri)
+                  result.push(...nested)
+                }
+              }
+              return result
+            }
+
+            const newDirRel = vscode.workspace.asRelativePath(fileRename.newUri)
+            const oldDirRel = vscode.workspace.asRelativePath(fileRename.oldUri)
+            const newPrefix = newDirRel.endsWith('/') ? newDirRel : newDirRel + '/'
+            const oldPrefix = oldDirRel.endsWith('/') ? oldDirRel : oldDirRel + '/'
+
+            let files: vscode.Uri[] = []
+            try {
+              files = await listFilesRecursively(fileRename.newUri)
+            } catch (err) {
+              // Ошибка чтения директории — пропускаем
+              continue
+            }
+
+            let updatedCount = 0
+            for (const fileUri of files) {
+              try {
+                const relNewPath = vscode.workspace.asRelativePath(fileUri)
+                // Вычисляем старый относительный путь, подставляя префикс
+                let relOldPath = relNewPath
+                if (relNewPath.startsWith(newPrefix)) {
+                  relOldPath = oldPrefix + relNewPath.slice(newPrefix.length)
+                }
+
+                const document = await vscode.workspace.openTextDocument(fileUri)
+                const cfg = readConfig(fileUri)
+                if (!cfg.enabled || !cfg.updateOnRename) continue
+
+                const documentPath = fileUri.path
+                const fileExtension = path.extname(documentPath).toLowerCase()
+                const fileName = path.basename(documentPath)
+
+                const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
+                  cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+                  (() => {
+                    const parts = fileName.split('.')
+                    if (parts.length > 1) {
+                      for (let i = 1; i < parts.length; i++) {
+                        const compoundExt = '.' + parts.slice(i).join('.')
+                        if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) return true
+                      }
+                    }
+                    return false
+                  })()
+
+                if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) continue
+
+                const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate
+                if (isExtensionDisabled) continue
+
+                if (isInIgnoredDirectory(relNewPath, cfg.ignoredDirectories)) continue
+                if (!isInAllowedDirectory(relNewPath, cfg.allowedOnlyDirectories)) continue
+
+                const firstLine = document.lineAt(0).text.trim()
+                if (!isCommentWithPath(firstLine, relOldPath)) continue
+
+                // Если разрешена автоперезапись рекурсивно — обновляем без запросов и считаем
+                if (cfg.updateOnRenameRecursive) {
+                  const ok = await replaceTopComment(document, relOldPath, relNewPath, cfg)
+                  if (ok) updatedCount++
+                  continue
+                }
+
+                // Иначе спрашиваем для каждого файла
+                const language = vscode.env.language
+                const message = getMessage('updatePathComment', language)
+                const oldName = relOldPath.split('/').pop() || relOldPath
+                const newName = relNewPath.split('/').pop() || relNewPath
+                const renameInfo = getMessage('fileRenamed', language, oldName, newName)
+
+                const result = await vscode.window.showInformationMessage(
+                  `${renameInfo}\n${message}`,
+                  'Yes', 'No'
+                )
+                if (result !== 'Yes') continue
+
+                const ok = await replaceTopComment(document, relOldPath, relNewPath, cfg)
+                if (ok) {
+                  vscode.window.showInformationMessage(getMessage('pathCommentUpdated', language))
+                }
+
+              } catch (err) {
+                const language = vscode.env.language
+                vscode.window.showErrorMessage(
+                  getMessage('errorUpdatingComment', language, err instanceof Error ? err.message : String(err))
+                )
+              }
+            }
+
+            if (updatedCount > 0) {
+              const language = vscode.env.language
+              vscode.window.showInformationMessage(getMessage('pathCommentsUpdatedCount', language, String(updatedCount)))
+            }
           }
         } catch (error) {
           const language = vscode.env.language

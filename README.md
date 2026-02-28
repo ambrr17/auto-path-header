@@ -54,6 +54,18 @@ The extension activates immediately after installation to handle files with any 
 - `autoPathHeader.updateOnRename` — automatically update comment on rename/move
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 - `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
+- `autoPathHeader.updateOnRename` — automatically update comment on rename/move
+- `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
+- `autoPathHeader.updateOnRenameRecursive` — when `updateOnRename` is enabled and a directory is renamed, controls how the extension treats files inside the renamed directory. If `true`, the extension will automatically update path comments for all files under the renamed directory recursively without prompting for each file and will show a single informational message with the total number of files updated. If `false`, the extension will prompt (Yes/No) for each file whether to update the comment. Default: `false`.
+
+Example:
+```jsonc
+{
+  "autoPathHeader.updateOnRename": true,
+  "autoPathHeader.updateOnRenameRecursive": true
+}
+```
+- `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
 - `autoPathHeader.allowedOnlyDirectories` — array of directory names, relative paths or **glob patterns** (relative to the workspace root). Patterns follow [minimatch](https://www.npmjs.com/package/minimatch) syntax, so you can use `*`, `**`, `?`, character classes, etc. When non‑empty, files will only be processed if their path matches one of the entries. The default value is `['src', 'app']`; setting this configuration replaces the default list completely (it does **not** append). Examples:
   - `['main', 'css']` restricts insertion to those folders
   - `['.']` allows every path (root and subdirectories)

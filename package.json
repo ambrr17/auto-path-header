@@ -192,6 +192,13 @@
           },
           "scope": "resource"
         }
+        ,
+        "autoPathHeader.updateOnRenameRecursive": {
+          "type": "boolean",
+          "description": "When a directory is renamed, automatically update path comments for all files inside that directory recursively without per-file prompts. If false, the extension will ask for each file whether to update.",
+          "default": false,
+          "scope": "resource"
+        }
       }
     }
   },
