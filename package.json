@@ -155,8 +155,8 @@
         },
         "autoPathHeader.allowedOnlyDirectories": {
           "type": "array",
-          "description": "List of directories to limit automatic insertion to (relative paths from workspace root). When non-empty, files outside these directories are ignored.",
-          "default": ["src","app"],
+          "description": "List of directories or glob patterns to limit automatic insertion (relative paths from workspace root). When non-empty, files not matching any entry are ignored.",
+          "default": ["."],
           "items": {
             "type": "string"
           },
@@ -173,7 +173,7 @@
         },
         "autoPathHeader.ignoredDirectories": {
           "type": "array",
-          "description": "List of directories to ignore (relative paths from workspace root)",
+          "description": "List of directories or glob patterns to ignore (relative paths from workspace root)",
           "default": [
             "node_modules",
             "vendor",
@@ -208,11 +208,15 @@
     "test:it:report": "npm run compile-it && node ./out-it/runTest.js || exit 0",
     "test:all:report": "npm run compile-test && npm run compile-it && npm run test:unit:report && npm run test:it:report"
   },
+  "dependencies": {
+    "minimatch": "^9.0.4"
+  },
   "devDependencies": {
     "@types/glob": "^8.0.0",
     "@types/mocha": "^10.0.0",
     "@types/node": "^24.0.4",
     "@types/vscode": "^1.85.0",
+    "@types/minimatch": "^5.1.2",
     "@vscode/test-electron": "^2.5.2",
     "glob": "^10.0.0",
     "mocha": "^10.0.0",

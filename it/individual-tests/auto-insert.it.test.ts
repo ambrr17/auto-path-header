@@ -99,4 +99,29 @@ suite('Integration Test Suite: Automatic Insertion', () => {
 		await new Promise(resolve => setTimeout(resolve, 1000));
 		assert.strictEqual(editor2.document.lineAt(0).text, '');
 	});
+
+	test('Auto-insert test: allowedOnlyDirectories glob pattern support', async () => {
+		const config = vscode.workspace.getConfiguration('autoPathHeader');
+		await config.update('allowedOnlyDirectories', ['**/nested'], vscode.ConfigurationTarget.Workspace);
+
+		// create nested folder and file
+		const nestedDir = path.join(tempDir, 'nested');
+		fs.mkdirSync(nestedDir, { recursive: true });
+		const nestedFile = path.join(nestedDir, 'file.ts');
+		fs.writeFileSync(nestedFile, '');
+
+		const doc = await vscode.workspace.openTextDocument(nestedFile);
+		const editor = await vscode.window.showTextDocument(doc);
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		assert.ok(editor.document.lineAt(0).text.includes('nested/file.ts'));
+
+		// file in unmatching folder should not get inserted
+		const other = path.join(tempDir, 'other', 'foo.ts');
+		fs.mkdirSync(path.dirname(other), { recursive: true });
+		fs.writeFileSync(other, '');
+		const doc2 = await vscode.workspace.openTextDocument(other);
+		const editor2 = await vscode.window.showTextDocument(doc2);
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		assert.strictEqual(editor2.document.lineAt(0).text, '');
+	});
 });

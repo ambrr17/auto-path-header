@@ -50,7 +50,7 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
             ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
             ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
         ]),
-		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['src', 'app']),
+		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['.']),
 		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}

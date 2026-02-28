@@ -54,19 +54,34 @@ The extension activates immediately after installation to handle files with any 
 - `autoPathHeader.updateOnRename` — automatically update comment on rename/move
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 - `autoPathHeader.formatTemplate` — customize the comment line. Supports `{comment}`, `{path}`, `{prefix}`, `{suffix}` placeholders.
-- `autoPathHeader.allowedOnlyDirectories` — array of directory names or relative paths (from the workspace root). When non‑empty, files will only be processed if their path lies inside one of these directories. The default value is `['src', 'app']`; setting this configuration replaces the default list completely (it does **not** append). For example, you can set `['main', 'css']` to restrict insertion to those folders. Including `'.'` acts as a wildcard and permits every path (root and subdirectories); e.g. `['.']` allows insertion for files anywhere in the workspace.
-- `autoPathHeader.ignoredDirectories` — array of directory names or relative paths (from the workspace root). Files located inside any of these directories will be ignored for automatic insertion and updates. **Setting this value replaces the default list completely; it does not append.** If you only need to block a few paths, consider using the opposite whitelist setting `autoPathHeader.allowedOnlyDirectories` instead. The default ignored list is `['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']`.
+- `autoPathHeader.allowedOnlyDirectories` — array of directory names, relative paths or **glob patterns** (relative to the workspace root). Patterns follow [minimatch](https://www.npmjs.com/package/minimatch) syntax, so you can use `*`, `**`, `?`, character classes, etc. When non‑empty, files will only be processed if their path matches one of the entries. The default value is `['src', 'app']`; setting this configuration replaces the default list completely (it does **not** append). Examples:
+  - `['main', 'css']` restricts insertion to those folders
+  - `['.']` allows every path (root and subdirectories)
+  - `['src/**']` allows files under any subfolder of `src`
+  - `['**/utils']` allows files inside any `utils` directory
 
-  _Example: replace all defaults with a custom ignore list_
+- `autoPathHeader.ignoredDirectories` — array of directory names, relative paths or **glob patterns** (minimatch). Files located inside any matching directory will be ignored for automatic insertion and updates. **Setting this value replaces the default list completely; it does not append.** If you only need to block a few paths, consider using the opposite whitelist setting `autoPathHeader.allowedOnlyDirectories` instead. The default ignored list is `['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']`. Examples:
+  - `['**/node_modules', '**/dist']` to ignore those folders anywhere
+  - `['temp/*']` to ignore immediate children of `temp`
+
+  _Example: replace all defaults with a custom ignore list (plain names or glob patterns)_
   ```jsonc
   {
-    "autoPathHeader.ignoredDirectories": ["temp", "legacy"]
+    "autoPathHeader.ignoredDirectories": [
+      "temp",              // simple directory
+      "**/node_modules",   // glob: anywhere in workspace
+      "dist/*"             // glob: immediate children of dist
+    ]
   }
   ```
-  _Example using whitelist to allow only specific folders_
+  _Example using whitelist to allow only specific folders (supports globs)_
   ```jsonc
   {
-    "autoPathHeader.allowedOnlyDirectories": ["src", "lib"]
+    "autoPathHeader.allowedOnlyDirectories": [
+      "src",              // only src folder
+      "**/utils",         // any utils directory at any depth
+      "src/**/*.ts"       // all TypeScript files under src
+    ]
   }
   ```
 

@@ -4,13 +4,25 @@ src/it/**
 test/**
 it/**
 tests
-.vscode-test/**
+.vscode-test*/**
 .vscode-testworkspace/**
+out-*/**
+
+unit-test-results.json
+tsconfig.test.json
+tsconfig.it.json
+tree.js
+it-test-results.json
+.kilocodeignore
 INTEGRATION_TESTS_RU.md
 TESTS_RU.md
+INTEGRATION_TESTS_PLAN.md
 
 # Dev artifacts
 node_modules
+!node_modules/minimatch/**
+!node_modules/brace-expansion/**
+!node_modules/balanced-match/**
 .github
 .vscode
 coverage

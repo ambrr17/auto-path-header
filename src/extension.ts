@@ -13,6 +13,7 @@ import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
 import { isInIgnoredDirectory, isInAllowedDirectory } from './utils/directoryUtils'
 
 export function activate(context: vscode.ExtensionContext) {
+
   // Подписка на изменения конфигурации для обновления кэша
   const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration('autoPathHeader')) {
@@ -35,28 +36,28 @@ export function activate(context: vscode.ExtensionContext) {
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
       const fileName = path.basename(documentPath);
-      
+
       // Проверяем, есть ли пользовательский шаблон для этого файла
       const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
-                                  cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
-                                  // Проверяем составные расширения (например, .env.local)
-                                  (() => {
-                                    const parts = fileName.split('.');
-                                    if (parts.length > 1) {
-                                      for (let i = 1; i < parts.length; i++) {
-                                        const compoundExt = '.' + parts.slice(i).join('.');
-                                        if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
-                                          return true;
-                                        }
-                                      }
-                                    }
-                                    return false;
-                                  })();
-      
+        cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+        // Проверяем составные расширения (например, .env.local)
+        (() => {
+          const parts = fileName.split('.');
+          if (parts.length > 1) {
+            for (let i = 1; i < parts.length; i++) {
+              const compoundExt = '.' + parts.slice(i).join('.');
+              if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        })();
+
       // Проверяем, разрешено ли расширение в allowedOnlyExtensions
       // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
       if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) return
-      
+
       // Проверяем, не отключено ли расширение в disabledExtensions
       // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
       if (cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate) return
@@ -120,28 +121,27 @@ export function activate(context: vscode.ExtensionContext) {
           const documentPath = fileRename.newUri.path;
           const fileExtension = path.extname(documentPath).toLowerCase();
           const fileName = path.basename(documentPath);
-          
           // Проверяем, есть ли пользовательский шаблон для этого файла
           const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
-                                      cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
-                                      // Проверяем составные расширения (например, .env.local)
-                                      (() => {
-                                        const parts = fileName.split('.');
-                                        if (parts.length > 1) {
-                                          for (let i = 1; i < parts.length; i++) {
-                                            const compoundExt = '.' + parts.slice(i).join('.');
-                                            if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
-                                              return true;
-                                            }
-                                          }
-                                        }
-                                        return false;
-                                      })();
-          
+            cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+            // Проверяем составные расширения (например, .env.local)
+            (() => {
+              const parts = fileName.split('.');
+              if (parts.length > 1) {
+                for (let i = 1; i < parts.length; i++) {
+                  const compoundExt = '.' + parts.slice(i).join('.');
+                  if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                    return true;
+                  }
+                }
+              }
+              return false;
+            })();
+
           // Проверяем, разрешено ли расширение в allowedOnlyExtensions
           // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
           if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) continue;
-          
+
           // Проверяем, является ли расширение отключенным - если да, то игнорируем файл полностью
           // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
           const isExtensionDisabled = cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate;
@@ -160,12 +160,12 @@ export function activate(context: vscode.ExtensionContext) {
             // Если в файле не найден комментарий с предыдущим путем, уведомляем пользователя
             const language = vscode.env.language;
             const fileName = path.basename(newPath);
-            
+
             const result = await vscode.window.showInformationMessage(
               getMessage('insertNewComment', language, fileName),
               'Yes', 'No'
             );
-            
+
             if (result === 'Yes') {
               // Вставляем новый комментарий как при создании нового файла
               await ensureCommentAtTop(document, newPath, cfg);
@@ -243,24 +243,24 @@ export function activate(context: vscode.ExtensionContext) {
       const documentPath = document.uri.path;
       const fileExtension = path.extname(documentPath).toLowerCase();
       const fileName = path.basename(documentPath);
-      
+
       // Проверяем, есть ли пользовательский шаблон для этого файла
       const hasCustomTemplate = cfg.customTemplatesByExtension.hasOwnProperty(fileName) ||
-                                  cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
-                                  // Проверяем составные расширения (например, .env.local)
-                                  (() => {
-                                    const parts = fileName.split('.');
-                                    if (parts.length > 1) {
-                                      for (let i = 1; i < parts.length; i++) {
-                                        const compoundExt = '.' + parts.slice(i).join('.');
-                                        if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
-                                          return true;
-                                        }
-                                      }
-                                    }
-                                    return false;
-                                  })();
-      
+        cfg.customTemplatesByExtension.hasOwnProperty(fileExtension) ||
+        // Проверяем составные расширения (например, .env.local)
+        (() => {
+          const parts = fileName.split('.');
+          if (parts.length > 1) {
+            for (let i = 1; i < parts.length; i++) {
+              const compoundExt = '.' + parts.slice(i).join('.');
+              if (cfg.customTemplatesByExtension.hasOwnProperty(compoundExt)) {
+                return true;
+              }
+            }
+          }
+          return false;
+        })();
+
       // Проверяем, разрешено ли расширение в allowedOnlyExtensions
       // Но если есть пользовательский шаблон, разрешаем обработку независимо от allowedOnlyExtensions
       if (cfg.allowedOnlyExtensions.length > 0 && !cfg.allowedOnlyExtensions.includes(fileExtension) && !hasCustomTemplate) {
@@ -270,7 +270,7 @@ export function activate(context: vscode.ExtensionContext) {
         )
         return
       }
-      
+
       // Проверяем отключение по расширению файла
       // Но если есть пользовательский шаблон, разрешаем обработку независимо от disabledExtensions
       if (cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate) {

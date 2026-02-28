@@ -5,7 +5,7 @@
 
 import * as assert from 'assert';
 import { isCommentWithPath, getCommentForCustomTemplate, getCommentByFileExtension, getCommentStyleByExtension } from '../src/utils/comments';
-import { isInAllowedDirectory } from '../src/utils/directoryUtils';
+import { isInAllowedDirectory, isInIgnoredDirectory } from '../src/utils/directoryUtils';
 
 suite('Auto Path Header Extension Tests', () => {
   
@@ -147,5 +147,20 @@ suite('Auto Path Header Extension Tests', () => {
   test('isInAllowedDirectory should treat "." as wildcard allowing all paths', () => {
     assert.strictEqual(isInAllowedDirectory('foo/bar.txt', ['.']), true);
     assert.strictEqual(isInAllowedDirectory('nested/path/file.ts', ['.', 'src']), true);
+  });
+
+  test('isInAllowedDirectory should support glob patterns', () => {
+    assert.strictEqual(isInAllowedDirectory('src/app/main.ts', ['src/**']), true);
+    assert.strictEqual(isInAllowedDirectory('lib/utils.ts', ['**/utils.ts']), true);
+    assert.strictEqual(isInAllowedDirectory('other/foo.ts', ['src/**']), false);
+    assert.strictEqual(isInAllowedDirectory('foo.spec.ts', ['*.spec.ts']), true);
+  });
+
+  test('isInIgnoredDirectory should support glob patterns', () => {
+    assert.strictEqual(isInIgnoredDirectory('node_modules/foo/index.js', ['**/node_modules']), true);
+    assert.strictEqual(isInIgnoredDirectory('src/node_modules/foo.js', ['**/node_modules']), true);
+    assert.strictEqual(isInIgnoredDirectory('dist/bundle.js', ['**/dist']), true);
+    assert.strictEqual(isInIgnoredDirectory('src/dist/bundle.js', ['**/dist']), true);
+    assert.strictEqual(isInIgnoredDirectory('src/app.ts', ['**/dist']), false);
   });
 });
