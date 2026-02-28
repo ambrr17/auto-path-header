@@ -11,6 +11,6 @@
     "skipLibCheck": true,
     "types": ["node", "mocha"]
   },
-  "include": ["**/*.ts", "**/*.js"],
-  "exclude": ["node_modules", ".vscode-test"]
+  "include": ["src/**/*.ts", "src/**/*.js"],
+  "exclude": ["node_modules", ".vscode-test", "test", "it"]
 }

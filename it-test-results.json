@@ -1,63 +1,7 @@
 {
-  "failures": 2,
-  "tests": [
-    {
-      "title": "applies customTemplatesByExtension for .env.local files",
-      "fullTitle": "Insert comment (integration) applies customTemplatesByExtension for .env.local files",
-      "state": "passed",
-      "duration": 6750,
-      "err": null
-    },
-    {
-      "title": "prioritizes specific file name over extension template",
-      "fullTitle": "Insert comment (integration) prioritizes specific file name over extension template",
-      "state": "passed",
-      "duration": 882,
-      "err": null
-    },
-    {
-      "title": "updates path automatically when updateOnRename=true, askBeforeUpdate=false",
-      "fullTitle": "Rename/Move updates (integration) updates path automatically when updateOnRename=true, askBeforeUpdate=false",
-      "state": "passed",
-      "duration": 3679,
-      "err": null
-    },
-    {
-      "title": "updates comment style when language changes on rename",
-      "fullTitle": "Rename/Move updates (integration) updates comment style when language changes on rename",
-      "state": "passed",
-      "duration": 8813,
-      "err": null
-    },
-    {
-      "title": "updates path with custom template when file is renamed",
-      "fullTitle": "Rename/Move updates (integration) updates path with custom template when file is renamed",
-      "state": "passed",
-      "duration": 14279,
-      "err": null
-    },
-    {
-      "title": "updates path with specific file template when file is renamed",
-      "fullTitle": "Rename/Move updates (integration) updates path with specific file template when file is renamed",
-      "state": "failed",
-      "duration": 8625,
-      "err": {
-        "message": "Expected '# DEV BUILD: Dockerfile.dev', but got '# SPECIFIC: Dockerfile.dev'\n+ actual - expected\n\n+ '# SPECIFIC: Dockerfile.dev'\n- '# DEV BUILD: Dockerfile.dev'\n     ^\n",
-        "stack": "AssertionError [ERR_ASSERTION]: Expected '# DEV BUILD: Dockerfile.dev', but got '# SPECIFIC: Dockerfile.dev'\n+ actual - expected\n\n+ '# SPECIFIC: Dockerfile.dev'\n- '# DEV BUILD: Dockerfile.dev'\n     ^\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\dist\\it\\failed.rename.it.test.js:173:20)"
-      }
-    },
-    {
-      "title": "updates path with compound extension template when file is renamed",
-      "fullTitle": "Rename/Move updates (integration) updates path with compound extension template when file is renamed",
-      "state": "failed",
-      "duration": 7727,
-      "err": {
-        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '# LOCAL OVERRIDE — config/.env.local'\n- '# RENAME LOCAL: config/.env.local'\n     ^\n",
-        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '# LOCAL OVERRIDE — config/.env.local'\n- '# RENAME LOCAL: config/.env.local'\n     ^\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\dist\\it\\failed.rename.it.test.js:218:20)"
-      }
-    }
-  ],
-  "passed": 5,
-  "failed": 2,
+  "failures": 0,
+  "tests": [],
+  "passed": 0,
+  "failed": 0,
   "pending": 0
 }

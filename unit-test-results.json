@@ -1,0 +1,267 @@
+{
+  "failures": 7,
+  "tests": [
+    {
+      "title": "getMessage should return English message for English language",
+      "fullTitle": "Localization Tests getMessage should return English message for English language",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should return Russian message for Russian language",
+      "fullTitle": "Localization Tests getMessage should return Russian message for Russian language",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should return English message for unsupported language",
+      "fullTitle": "Localization Tests getMessage should return English message for unsupported language",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should replace placeholders with arguments",
+      "fullTitle": "Localization Tests getMessage should replace placeholders with arguments",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should replace multiple placeholders",
+      "fullTitle": "Localization Tests getMessage should replace multiple placeholders",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should handle Russian placeholders",
+      "fullTitle": "Localization Tests getMessage should handle Russian placeholders",
+      "state": "passed",
+      "duration": 1,
+      "err": null
+    },
+    {
+      "title": "getMessage should default to English for unknown keys",
+      "fullTitle": "Localization Tests getMessage should default to English for unknown keys",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "messages should contain all required keys",
+      "fullTitle": "Localization Tests messages should contain all required keys",
+      "state": "failed",
+      "duration": 1,
+      "err": {
+        "message": "Missing English key: unsupportedLanguage",
+        "stack": "AssertionError [ERR_ASSERTION]: Missing English key: unsupportedLanguage\n\tat e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\localization.test.js:74:20\n\tat Array.forEach (<anonymous>)\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\localization.test.js:73:22)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getMessage should handle empty arguments array",
+      "fullTitle": "Localization Tests getMessage should handle empty arguments array",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getMessage should handle language variants",
+      "fullTitle": "Localization Tests getMessage should handle language variants",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect existing comment with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect existing comment with path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect existing comment with different path format",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect existing comment with different path format",
+      "state": "passed",
+      "duration": 1,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should not detect comment without path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should not detect comment without path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect Python comment with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect Python comment with path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect CSS comment with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect CSS comment with path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect SQL comment with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect SQL comment with path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should detect HTML comment with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should detect HTML comment with path",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "isCommentWithPath should not detect non-comment line with path",
+      "fullTitle": "Auto Path Header Extension Tests isCommentWithPath should not detect non-comment line with path",
+      "state": "failed",
+      "duration": 1,
+      "err": {
+        "message": "Expected values to be strictly equal:\n\ntrue !== false\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n\ntrue !== false\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:73:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentForCustomTemplate should apply extension prefix when template does not start with comment",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should apply extension prefix when template does not start with comment",
+      "state": "failed",
+      "duration": 1,
+      "err": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'LLL: src/example.mjd'\n- '# LLL: src/example.mjd'\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'LLL: src/example.mjd'\n- '# LLL: src/example.mjd'\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:77:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentForCustomTemplate should process {filename} placeholder correctly",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should process {filename} placeholder correctly",
+      "state": "failed",
+      "duration": 1,
+      "err": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '# src/example.mjd'\n- '# LLL: example.mjd'\n     ^\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '# src/example.mjd'\n- '# LLL: example.mjd'\n     ^\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:81:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentForCustomTemplate should process {dirname} placeholder correctly",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should process {dirname} placeholder correctly",
+      "state": "failed",
+      "duration": 0,
+      "err": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ '# src/example.mjd'\n- '# LLL: src'\n     ^\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ '# src/example.mjd'\n- '# LLL: src'\n     ^\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:85:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentForCustomTemplate should return processed template with default comment for unsupported extension",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should return processed template with default comment for unsupported extension",
+      "state": "failed",
+      "duration": 0,
+      "err": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'LLL: src/example.mjd'\n- '# LLL: src/example.mjd'\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'LLL: src/example.mjd'\n- '# LLL: src/example.mjd'\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:89:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentForCustomTemplate should not apply extension prefix when template starts with comment character",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should not apply extension prefix when template starts with comment character",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentForCustomTemplate should apply extension prefix for text extension as well",
+      "fullTitle": "Auto Path Header Extension Tests getCommentForCustomTemplate should apply extension prefix for text extension as well",
+      "state": "failed",
+      "duration": 1,
+      "err": {
+        "message": "Expected values to be strictly equal:\n+ actual - expected\n\n+ 'qwerty: src/example.ttt'\n- '# qwerty: src/example.ttt'\n",
+        "stack": "AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n+ actual - expected\n\n+ 'qwerty: src/example.ttt'\n- '# qwerty: src/example.ttt'\n\n\tat Context.<anonymous> (e:\\SandBox\\extensions\\auto-path-header\\out-test\\test\\extension.test.js:97:16)\n\tat process.processImmediate (node:internal/timers:485:21)"
+      }
+    },
+    {
+      "title": "getCommentStyleByExtension should return correct style for JavaScript file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentStyleByExtension should return correct style for JavaScript file",
+      "state": "passed",
+      "duration": 1,
+      "err": null
+    },
+    {
+      "title": "getCommentStyleByExtension should return correct style for Python file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentStyleByExtension should return correct style for Python file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentStyleByExtension should return correct style for CSS file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentStyleByExtension should return correct style for CSS file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentStyleByExtension should return undefined for unsupported extension",
+      "fullTitle": "Auto Path Header Extension Tests getCommentStyleByExtension should return undefined for unsupported extension",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should return correct comment for JavaScript file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should return correct comment for JavaScript file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should return correct comment for Python file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should return correct comment for Python file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should return correct comment for CSS file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should return correct comment for CSS file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should return correct comment for PHP file",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should return correct comment for PHP file",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should return default comment for unsupported extension",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should return default comment for unsupported extension",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    },
+    {
+      "title": "getCommentByFileExtension should apply template placeholders",
+      "fullTitle": "Auto Path Header Extension Tests getCommentByFileExtension should apply template placeholders",
+      "state": "passed",
+      "duration": 0,
+      "err": null
+    }
+  ],
+  "passed": 27,
+  "failed": 7,
+  "pending": 0
+}

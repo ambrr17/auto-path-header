@@ -1,0 +1,21 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "module": "commonjs",
+    "target": "es2020",
+    "outDir": "out-it",
+    "lib": ["es2020"],
+    "sourceMap": true,
+    "rootDir": "it",
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "types": ["node", "mocha", "vscode"]
+  },
+  "include": [
+    "it/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
+}

@@ -1,6 +1,8 @@
 # Tests
 src/test/**
 src/it/**
+test/**
+it/**
 tests
 .vscode-test/**
 .vscode-testworkspace/**

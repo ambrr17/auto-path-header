@@ -2,13 +2,11 @@
 
 Auto Path Header is a Visual Studio Code extension that automatically inserts the relative file path as a comment on the first line.
 
-Language: EN | [RU](./README_RU.md)
-
-Author: Niklis
-
+![Auto Insert Demo](media/auto-insert.gif)
+![Test](images/icon.png)
 ## Features
 
-- Automatic insertion of the file path on open
+- Automatic insertion of the file path on open (only for files with a single empty line - files with content will not be automatically modified); for files with content, you can manually insert the comment via Command Palette
 - Support for many file extensions
 - Duplicate comment prevention
 - RU/EN localization support
@@ -145,7 +143,7 @@ Note that specific file names and extensions will take precedence over the wildc
 
 ## Usage
 
-- Works automatically on file open (for supported file extensions)
+- Works automatically on file open (for supported file extensions) - but only for files that initially have a single empty line (files with existing content will not be automatically modified)
 - Manual insertion:
   1. `Ctrl+Shift+P` → "Auto Path Header: Insert Path Comment"
 
@@ -195,10 +193,6 @@ npm run test:it
 MIT License
 
 ## Release notes
-
-- v0.0.3 — Custom `formatTemplate`, `disabledLanguages`, improved rename handling, GitHub Actions VSIX workflow
-- v0.0.2 — RU localization, error handling, rename updates, tests
-- v0.0.1 — initial functionality
 
 ## Support
 
