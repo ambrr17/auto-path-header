@@ -10,7 +10,7 @@ import { getMessage } from './localization'
 import { isCommentWithPath } from './utils/comments'
 import { readConfig } from './services/config'
 import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
-import { isInIgnoredDirectory } from './utils/directoryUtils'
+import { isInIgnoredDirectory, isInAllowedDirectory } from './utils/directoryUtils'
 
 export function activate(context: vscode.ExtensionContext) {
   // Подписка на изменения конфигурации для обновления кэша
@@ -64,6 +64,9 @@ export function activate(context: vscode.ExtensionContext) {
       // Check if the file is in an ignored directory
       if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) return
 
+      // Enforce allowed-only directories if configured (relative to workspace root)
+      if (!isInAllowedDirectory(filePath, cfg.allowedOnlyDirectories)) return
+
       const ok = await ensureCommentAtTop(document, filePath, cfg)
       if (!ok) return
     } catch (error) {
@@ -101,10 +104,10 @@ export function activate(context: vscode.ExtensionContext) {
           }
 
           // #######
-          if (stat.type !== vscode.FileType.File) {
-            vscode.window.showInformationMessage(`это папка — пропускаем event.files.length: ${event.files.length}`)
-            continue; // это папка — пропускаем
-          }
+          // if (stat.type !== vscode.FileType.File) {
+          //   vscode.window.showInformationMessage(`это папка — пропускаем event.files.length: ${event.files.length}`)
+          //   continue; // это папка — пропускаем
+          // }
           // #######
 
           const document = await vscode.workspace.openTextDocument(fileRename.newUri)
@@ -147,6 +150,9 @@ export function activate(context: vscode.ExtensionContext) {
           // Check if the new file path is in an ignored directory
           const isNewPathInIgnoredDir = isInIgnoredDirectory(newPath, cfg.ignoredDirectories);
           if (isNewPathInIgnoredDir) continue;
+
+          // if allowed-only directories are set, skip paths outside them
+          if (!isInAllowedDirectory(newPath, cfg.allowedOnlyDirectories)) continue;
 
           // Проверка наличия старого комментария
           const firstLine = document.lineAt(0).text.trim()
@@ -280,6 +286,15 @@ export function activate(context: vscode.ExtensionContext) {
         const language = vscode.env.language;
         vscode.window.showInformationMessage(
           getMessage('directoryIgnored', language, path.dirname(filePath))
+        );
+        return;
+      }
+
+      // Enforce allowed-only directories for manual insertion
+      if (!isInAllowedDirectory(filePath, cfg.allowedOnlyDirectories)) {
+        const language = vscode.env.language;
+        vscode.window.showInformationMessage(
+          getMessage('directoryNotAllowed', language, path.dirname(filePath))
         );
         return;
       }

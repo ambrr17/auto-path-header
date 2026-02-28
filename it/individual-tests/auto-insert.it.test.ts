@@ -8,6 +8,9 @@ suite('Integration Test Suite: Automatic Insertion', () => {
 	let tempDir: string;
 
 	beforeEach(async () => {
+		// reset allowed directories so tests are not affected by defaults
+		await vscode.workspace.getConfiguration('autoPathHeader').update('allowedOnlyDirectories', [], vscode.ConfigurationTarget.Workspace);
+
 		// Create a temporary directory for our test files
 		tempDir = path.join(vscode.workspace.rootPath || __dirname, 'temp-test-dir');
 		if (!fs.existsSync(tempDir)) {
@@ -73,5 +76,27 @@ suite('Integration Test Suite: Automatic Insertion', () => {
 		// Check that no comment was added
 		const firstLine = editor.document.lineAt(0).text;
 		assert.strictEqual(firstLine, '', 'Expected no comment to be inserted in unsupported file type');
+	});
+
+	test('Auto-insert test: allowedOnlyDirectories filters files correctly', async () => {
+		// configure to only allow the temp directory
+		const config = vscode.workspace.getConfiguration('autoPathHeader');
+		await config.update('allowedOnlyDirectories', [path.basename(tempDir)], vscode.ConfigurationTarget.Workspace);
+
+		// file inside allowed directory should get comment
+		const inAllowed = path.join(tempDir, 'allowed.ts');
+		fs.writeFileSync(inAllowed, '');
+		const doc1 = await vscode.workspace.openTextDocument(inAllowed);
+		const editor1 = await vscode.window.showTextDocument(doc1);
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		assert.ok(editor1.document.lineAt(0).text.includes('allowed.ts'));
+
+		// file outside allowed (root) should not
+		const outside = path.join(vscode.workspace.rootPath || __dirname, 'outside.ts');
+		fs.writeFileSync(outside, '');
+		const doc2 = await vscode.workspace.openTextDocument(outside);
+		const editor2 = await vscode.window.showTextDocument(doc2);
+		await new Promise(resolve => setTimeout(resolve, 1000));
+		assert.strictEqual(editor2.document.lineAt(0).text, '');
 	});
 });

@@ -5,6 +5,7 @@
 
 import * as assert from 'assert';
 import { isCommentWithPath, getCommentForCustomTemplate, getCommentByFileExtension, getCommentStyleByExtension } from '../src/utils/comments';
+import { isInAllowedDirectory } from '../src/utils/directoryUtils';
 
 suite('Auto Path Header Extension Tests', () => {
   
@@ -126,5 +127,25 @@ suite('Auto Path Header Extension Tests', () => {
   test('getCommentByFileExtension should apply template placeholders', () => {
     const result = getCommentByFileExtension('src/example.js', '{prefix}[{path}]{suffix}');
     assert.strictEqual(result, '// [src/example.js]');
+  });
+
+  // new tests for allowed directory logic
+  test('isInAllowedDirectory should allow files inside directory', () => {
+    assert.strictEqual(isInAllowedDirectory('src/foo/bar.ts', ['src']), true);
+    assert.strictEqual(isInAllowedDirectory('app/main.js', ['src', 'app']), true);
+  });
+
+  test('isInAllowedDirectory should deny files outside allowed directories', () => {
+    assert.strictEqual(isInAllowedDirectory('other/foo.ts', ['src']), false);
+    assert.strictEqual(isInAllowedDirectory('foo.ts', ['src']), false);
+  });
+
+  test('isInAllowedDirectory should treat empty list as all-allowed', () => {
+    assert.strictEqual(isInAllowedDirectory('anything/whatever.ts', []), true);
+  });
+
+  test('isInAllowedDirectory should treat "." as wildcard allowing all paths', () => {
+    assert.strictEqual(isInAllowedDirectory('foo/bar.txt', ['.']), true);
+    assert.strictEqual(isInAllowedDirectory('nested/path/file.ts', ['.', 'src']), true);
   });
 });

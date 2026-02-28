@@ -23,6 +23,8 @@ export interface AutoPathHeaderConfig {
 	allowedOnlyExtensions: string[]
 	/** Directories to ignore (relative paths from workspace root) */
 	ignoredDirectories: string[]
+	/** Allowed only directories (relative paths from workspace root) */
+	allowedOnlyDirectories: string[]
 	/** Custom templates by file extension */
 	customTemplatesByExtension: Record<string, string>
 }
@@ -48,7 +50,8 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
             ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
             ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
         ]),
-	    ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
+		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['src', 'app']),
+		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}
 }

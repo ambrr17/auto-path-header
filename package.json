@@ -153,6 +153,15 @@
           },
           "scope": "resource"
         },
+        "autoPathHeader.allowedOnlyDirectories": {
+          "type": "array",
+          "description": "List of directories to limit automatic insertion to (relative paths from workspace root). When non-empty, files outside these directories are ignored.",
+          "default": ["src","app"],
+          "items": {
+            "type": "string"
+          },
+          "scope": "resource"
+        },
         "autoPathHeader.customTemplatesByExtension": {
           "type": "object",
           "description": "Custom templates by file extension. Key is the file extension (e.g. '.ts', '.js'), specific filename (e.g. 'Dockerfile.dev'), or '*' for all files, value is the template string. Supports {path}, {filename}, {dirname} placeholders",

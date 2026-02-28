@@ -52,3 +52,40 @@ export function isFileInIgnoredDirectory(fullPath: string, workspaceRoot: string
     return isInIgnoredDirectory(fullPath.replace(/\\/g, '/'), ignoredDirectories);
   }
 }
+
+/**
+ * Check if a file path is under any of the allowed-only directories.
+ * If the list is empty then everything is allowed.
+ * @param filePath The absolute or relative file path to check
+ * @param allowedDirectories Array of directory names/patterns allowed (relative to workspace root)
+ * @returns true if the file is inside one of the allowed directories, false otherwise
+ */
+export function isInAllowedDirectory(filePath: string, allowedDirectories: string[]): boolean {
+  if (!allowedDirectories || allowedDirectories.length === 0) {
+    return true; // no restrictions
+  }
+
+  // treat '.' as wildcard meaning "allow everything"
+  if (allowedDirectories.includes('.')) {
+    return true;
+  }
+
+  const normalizedPath = filePath.replace(/\\/g, '/');
+  const pathSegments = normalizedPath.split('/').filter(segment => segment.length > 0);
+
+  for (const dir of allowedDirectories) {
+    const normalizedDir = dir.replace(/\\/g, '/').replace(/\/$/, '');
+
+    // If the normalized path starts with the allowed directory pattern
+    if (normalizedPath === normalizedDir || normalizedPath.startsWith(normalizedDir + '/')) {
+      return true;
+    }
+
+    // Also check if any segment of the path equals the allowed directory
+    if (pathSegments.some(segment => segment === normalizedDir)) {
+      return true;
+    }
+  }
+
+  return false;
+}
