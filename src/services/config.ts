@@ -25,6 +25,8 @@ export interface AutoPathHeaderConfig {
 	ignoredDirectories: string[]
 	/** Allowed only directories (relative paths from workspace root) */
 	allowedOnlyDirectories: string[]
+	/** React to directory rename events (true = enabled). When false the extension ignores the folder rename entirely; file renames are unaffected. */
+	updateOnRenameFolder: boolean
 	/** Automatically update path comments for all files inside a renamed directory (recursive) without per-file prompts when true */
 	updateOnRenameRecursive: boolean
 	/** Custom templates by file extension */
@@ -54,6 +56,7 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
         ]),
 		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['.']),
 		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
+		updateOnRenameFolder: cfg.get<boolean>('updateOnRenameFolder', true),
 		updateOnRenameRecursive: cfg.get<boolean>('updateOnRenameRecursive', false),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
 	}

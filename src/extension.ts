@@ -184,6 +184,12 @@ export function activate(context: vscode.ExtensionContext) {
             }
 
           } else if (stat.type === vscode.FileType.Directory) {
+            // Reaction to directory rename may be disabled by user
+            const cfgCheck = readConfig(fileRename.newUri);
+            if (!cfgCheck.enabled || !cfgCheck.updateOnRename || !cfgCheck.updateOnRenameFolder) {
+              // skip entire directory rename handling
+              continue;
+            }
             // Обработка переименования директории — рекурсивно пробегаем все файлы в новой директории
             // Собираем список файлов
             async function listFilesRecursively(uri: vscode.Uri): Promise<vscode.Uri[]> {

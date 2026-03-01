@@ -193,6 +193,12 @@
           "scope": "resource"
         }
         ,
+        "autoPathHeader.updateOnRenameFolder": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable/disable the extension's reaction to folder rename events. When false the extension ignores directory renames entirely; file rename behavior is unaffected.",
+          "scope": "resource"
+        },
         "autoPathHeader.updateOnRenameRecursive": {
           "type": "boolean",
           "description": "When a directory is renamed, automatically update path comments for all files inside that directory recursively without per-file prompts. If false, the extension will ask for each file whether to update.",

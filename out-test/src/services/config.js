@@ -60,7 +60,10 @@ function readConfig(scope) {
             ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
             ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
         ]),
+        allowedOnlyDirectories: cfg.get('allowedOnlyDirectories', ['.']),
         ignoredDirectories: cfg.get('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
+        updateOnRenameFolder: cfg.get('updateOnRenameFolder', true),
+        updateOnRenameRecursive: cfg.get('updateOnRenameRecursive', false),
         customTemplatesByExtension: cfg.get('customTemplatesByExtension', {}),
     };
 }

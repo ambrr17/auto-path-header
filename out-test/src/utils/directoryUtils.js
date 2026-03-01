@@ -38,7 +38,50 @@ var __importStar = (this && this.__importStar) || (function () {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.isInIgnoredDirectory = isInIgnoredDirectory;
 exports.isFileInIgnoredDirectory = isFileInIgnoredDirectory;
+exports.isInAllowedDirectory = isInAllowedDirectory;
 const path = __importStar(require("path"));
+const minimatch = require("minimatch");
+const vscode = __importStar(require("vscode"));
+// Helper to detect if a pattern contains glob syntax
+function isGlobPattern(pattern) {
+    return /[*?\[\]{}]/.test(pattern);
+}
+// Shared matching logic used for both ignored and allowed lists.
+// Supports plain string comparisons as well as glob patterns via minimatch.
+function matchesAnyPattern(normalizedPath, pathSegments, normalizedPattern) {
+    // minimatch package exports an object; actual matcher is under `.minimatch`
+    const mm = minimatch.minimatch || minimatch;
+    if (isGlobPattern(normalizedPattern)) {
+        // handle **/prefix: match segment anywhere in path
+        if (normalizedPattern.startsWith('**/')) {
+            const segPattern = normalizedPattern.slice(3);
+            for (let i = 0; i < pathSegments.length; i++) {
+                const segment = pathSegments[i];
+                if (mm(segment, segPattern)) {
+                    return true;
+                }
+                const subpath = pathSegments.slice(i).join('/');
+                if (mm(subpath, segPattern, { matchBase: true })) {
+                    return true;
+                }
+            }
+        }
+        // try matching the full path; matchBase allows patterns like *.ts to match filenames
+        if (mm(normalizedPath, normalizedPattern, { matchBase: true })) {
+            return true;
+        }
+    }
+    else {
+        // plain string behaviour (previous implementation)
+        if (normalizedPath === normalizedPattern || normalizedPath.startsWith(normalizedPattern + '/')) {
+            return true;
+        }
+        if (pathSegments.some(seg => seg === normalizedPattern)) {
+            return true;
+        }
+    }
+    return false;
+}
 /**
  * Check if a file path is within any of the ignored directories
  * @param filePath The absolute or relative file path to check
@@ -46,19 +89,12 @@ const path = __importStar(require("path"));
  * @returns true if the file is in an ignored directory, false otherwise
  */
 function isInIgnoredDirectory(filePath, ignoredDirectories) {
-    // Normalize the file path to use forward slashes for consistent comparison
-    const normalizedPath = filePath.replace(/\\/g, '/');
-    // Split the path into segments
-    const pathSegments = normalizedPath.split('/').filter(segment => segment.length > 0);
-    // Check if any segment matches the ignored directories
-    for (const dir of ignoredDirectories) {
-        const normalizedDir = dir.replace(/\\/g, '/');
-        // Check if any segment in the path matches the ignored directory
-        if (pathSegments.some(segment => segment === normalizedDir)) {
-            return true;
-        }
-        // Also check if the full path starts with the ignored directory pattern
-        if (normalizedPath.startsWith(normalizedDir + '/') || normalizedPath === normalizedDir) {
+    const normalizedPath = filePath.replace(/\\/g, '/').replace(/\/$/, '');
+    const pathSegments = normalizedPath.split('/').filter(s => s.length > 0);
+    for (const pattern of ignoredDirectories) {
+        const normalizedPattern = pattern.replace(/\\/g, '/').replace(/\/$/, '');
+        if (matchesAnyPattern(normalizedPath, pathSegments, normalizedPattern)) {
+            vscode.window.showInformationMessage(`File in ignored directory ${pattern}`);
             return true;
         }
     }
@@ -73,13 +109,36 @@ function isInIgnoredDirectory(filePath, ignoredDirectories) {
  */
 function isFileInIgnoredDirectory(fullPath, workspaceRoot, ignoredDirectories) {
     try {
-        // Get relative path from workspace root
         const relativePath = path.relative(workspaceRoot, fullPath).replace(/\\/g, '/');
         return isInIgnoredDirectory(relativePath, ignoredDirectories);
     }
     catch (error) {
-        // If there's an error calculating the relative path, fall back to checking the full path
         return isInIgnoredDirectory(fullPath.replace(/\\/g, '/'), ignoredDirectories);
     }
+}
+/**
+ * Check if a file path is under any of the allowed-only directories.
+ * If the list is empty then everything is allowed.
+ * @param filePath The absolute or relative file path to check
+ * @param allowedDirectories Array of directory names/patterns allowed (relative to workspace root)
+ * @returns true if the file is inside one of the allowed directories, false otherwise
+ */
+function isInAllowedDirectory(filePath, allowedDirectories) {
+    if (!allowedDirectories || allowedDirectories.length === 0) {
+        return true; // no restrictions
+    }
+    // treat '.' as wildcard meaning "allow everything"
+    if (allowedDirectories.includes('.')) {
+        return true;
+    }
+    const normalizedPath = filePath.replace(/\\/g, '/').replace(/\/$/, '');
+    const pathSegments = normalizedPath.split('/').filter(segment => segment.length > 0);
+    for (const pattern of allowedDirectories) {
+        const normalizedPattern = pattern.replace(/\\/g, '/').replace(/\/$/, '');
+        if (matchesAnyPattern(normalizedPath, pathSegments, normalizedPattern)) {
+            return true;
+        }
+    }
+    return false;
 }
 //# sourceMappingURL=directoryUtils.js.map

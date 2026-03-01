@@ -5,11 +5,12 @@
 Auto Path Header is a Visual Studio Code extension that automatically inserts the relative file path as a comment on the first line.
 
 ![Auto Insert Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert.gif)
+
 ![Auto Insert Into Folder Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert-with-subfolder.gif)
 ## Features
 
 - Automatic insertion of the file path on open for new/empty files; files with existing content require manual insertion via Command Palette
-- Support for many file extensions
+- **Support for ANY file extension** — built-in support for 40+ popular languages, plus custom templates for unlimited file types
 - Duplicate comment prevention
 - Configurable settings
 - Error handling with localized messages
@@ -17,6 +18,8 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 - Manual comment insertion via Command Palette
 
 ## Supported file extensions
+
+> **Not limited to these!** Using [`autoPathHeader.customTemplatesByExtension`](#custom-templates-by-file-extension), you can add path comments to **ANY file extension** with any comment format you want. These are just the built-in presets.
 
 ### Single-line comments (`//`)
 - .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php
@@ -53,13 +56,14 @@ The extension activates immediately after installation to handle files with any 
 - `autoPathHeader.enabled` — enable/disable automatic insertion
 - `autoPathHeader.language` — message language (auto/en/ru)
 - `autoPathHeader.updateOnRename` — automatically update comment on rename/move
+- `autoPathHeader.updateOnRenameFolder` — when `true` (default) the extension will react to directory rename events and attempt to update comments inside the renamed folder according to the other rename settings. Set to `false` to ignore all folder renames; file rename behavior is unaffected.
 - `autoPathHeader.askBeforeUpdate` — ask before updating comment (works when updateOnRename = true)
 - `autoPathHeader.updateOnRenameRecursive` — when `updateOnRename` is enabled and a directory is renamed, controls how the extension treats files inside the renamed directory. If `true`, the extension will automatically update path comments for all files under the renamed directory recursively without prompting for each file and will show a single informational message with the total number of files updated. If `false`, the extension will prompt (Yes/No) for each file whether to update the comment. Default: `false`. Example:
 
 ```jsonc
 {
   "autoPathHeader.updateOnRename": true,
-  "autoPathHeader.updateOnRenameRecursive": true
+  "autoPathHeader.updateOnRenameFolder": false    // disable directory-renamed reactions
 }
 ```
 
