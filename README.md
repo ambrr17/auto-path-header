@@ -1,8 +1,11 @@
 <!-- README.md -->
 
 # Auto Path Header
+[![License](https://img.shields.io/github/license/ambrr17/auto-path-header?style=for-the-badge)](https://github.com/ambrr17/auto-path-header/blob/main/LICENSE)
 
 Auto Path Header is a Visual Studio Code extension that automatically inserts the relative file path as a comment on the first line.
+
+![Static Badge](https://img.shields.io/badge/Support_for-ANY_file_extension-orange?style=for-the-badge)
 
 ![Auto Insert Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert.gif)
 
@@ -331,9 +334,8 @@ If a path is in both, it is treated as _ignored_.
 
 The extension doesn't provide undo. Use VS Code's built-in undo (Ctrl+Z) or your version control system to revert changes.
 
-## Release notes
-
 ## Support
 
-If you have questions or suggestions, please open an Issue.
+If you find this extension useful and want to support further development:
 
+[![Donate](https://img.shields.io/badge/Donate-Crypto-green?style=for-the-badge)](https://donate.niklis.pp.ua)
