@@ -12,17 +12,30 @@
     "type": "git",
     "url": "https://github.com/ambrr17/auto-path-header.git"
   },
+  "homepage": "https://github.com/ambrr17/auto-path-header",
+  "bugs": {
+    "url": "https://github.com/ambrr17/auto-path-header/issues"
+  },
   "icon": "images/icon.png",
   "keywords": [
-    "vscode",
+    "file header",
+    "file path",
+    "relative path",
+    "comment header",
+    "insert header",
+    "auto header",
+    "file comment",
+    "path comment",
+    "source header",
+    "filepath",
     "comment",
     "header",
-    "path",
-    "file path",
-    "automation"
+    "header comment",
+    "path"
   ],
   "categories": [
-    "Other"
+    "Other",
+    "Formatters"
   ],
   "license": "MIT",
   "activationEvents": [
@@ -147,7 +160,9 @@
         "autoPathHeader.allowedOnlyDirectories": {
           "type": "array",
           "description": "List of directories or glob patterns to limit automatic insertion (relative paths from workspace root). When non-empty, files not matching any entry are ignored.",
-          "default": ["."],
+          "default": [
+            "."
+          ],
           "items": {
             "type": "string"
           },
@@ -183,8 +198,7 @@
             "type": "string"
           },
           "scope": "resource"
-        }
-        ,
+        },
         "autoPathHeader.updateOnRenameFolder": {
           "type": "boolean",
           "default": true,
