@@ -5,6 +5,7 @@
 import * as path from 'path';
 import minimatch = require('minimatch');
 import * as vscode from 'vscode';
+import { getMessage } from '../localization';
 
 // Helper to detect if a pattern contains glob syntax
 function isGlobPattern(pattern: string): boolean {
@@ -53,16 +54,38 @@ function matchesAnyPattern(normalizedPath: string, pathSegments: string[], norma
  * Check if a file path is within any of the ignored directories
  * @param filePath The absolute or relative file path to check
  * @param ignoredDirectories Array of directory names/patterns to ignore (relative to workspace root)
+ * @param document Optional VS Code text document used to determine whether the file is visible to the user before showing a notification
  * @returns true if the file is in an ignored directory, false otherwise
  */
-export function isInIgnoredDirectory(filePath: string, ignoredDirectories: string[]): boolean {
+export function isInIgnoredDirectory(
+  filePath: string,
+  ignoredDirectories: string[],
+  document?: vscode.TextDocument
+): boolean {
+
   const normalizedPath = filePath.replace(/\\/g, '/').replace(/\/$/, '');
   const pathSegments = normalizedPath.split('/').filter(s => s.length > 0);
 
   for (const pattern of ignoredDirectories) {
     const normalizedPattern = pattern.replace(/\\/g, '/').replace(/\/$/, '');
+
     if (matchesAnyPattern(normalizedPath, pathSegments, normalizedPattern)) {
-      vscode.window.showInformationMessage(`File in ignored directory ${pattern}`);
+
+      let shouldShowMessage = true;
+
+      if (document) {
+        shouldShowMessage =
+          vscode.window.activeTextEditor?.document === document ||
+          vscode.window.visibleTextEditors.some(editor => editor.document === document);
+      }
+
+      if (shouldShowMessage) {
+        const language = vscode.env.language;
+        vscode.window.showInformationMessage(
+          getMessage('directoryIgnored', language, path.dirname(filePath))
+        );
+      }
+
       return true;
     }
   }

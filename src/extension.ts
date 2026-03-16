@@ -63,7 +63,7 @@ export function activate(context: vscode.ExtensionContext) {
       if (cfg.disabledExtensions.includes(fileExtension) && !hasCustomTemplate) return
 
       // Check if the file is in an ignored directory
-      if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) return
+      if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories, document)) return
 
       // Enforce allowed-only directories if configured (relative to workspace root)
       if (!isInAllowedDirectory(filePath, cfg.allowedOnlyDirectories)) return
@@ -382,10 +382,6 @@ export function activate(context: vscode.ExtensionContext) {
 
       // Check if the file is in an ignored directory
       if (isInIgnoredDirectory(filePath, cfg.ignoredDirectories)) {
-        const language = vscode.env.language;
-        vscode.window.showInformationMessage(
-          getMessage('directoryIgnored', language, path.dirname(filePath))
-        );
         return;
       }
 

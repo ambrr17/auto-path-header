@@ -176,7 +176,8 @@
             ".hg",
             "target",
             "out",
-            "bin"
+            "bin",
+            ".next"
           ],
           "items": {
             "type": "string"
