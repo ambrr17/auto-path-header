@@ -52,7 +52,6 @@ const DEFAULT_EXTENSION_STYLES: Record<string, CommentStyle> = {
 	'.npmrc': { prefix: '# ' },
 	'.yml': { prefix: '# ' },
 	'.yaml': { prefix: '# ' },
-	'.json': { prefix: '/* ', suffix: ' */' }, // JSON doesn't officially support comments, but some implementations do
 	'.jsonc': { prefix: '// ' }, // JSON with comments
 	'.toml': { prefix: '# ' },
 	'.ini': { prefix: '; ' },

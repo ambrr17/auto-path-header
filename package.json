@@ -145,7 +145,6 @@
             ".npmrc",
             ".yml",
             ".yaml",
-            ".json",
             ".jsonc",
             ".toml",
             ".ini",

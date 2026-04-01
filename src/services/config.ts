@@ -52,10 +52,10 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
             ".zsh", ".rb", ".pl", ".pm", ".env", ".txt", ".md", ".markdown", ".css",
             ".scss", ".sass", ".less", ".sql", ".lua", ".hs", ".html", ".htm",
             ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
-            ".yml", ".yaml", ".json", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
+            ".yml", ".yaml", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
         ]),
 		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['.']),
-		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']),
+		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin', '.next']),
 		updateOnRenameFolder: cfg.get<boolean>('updateOnRenameFolder', true),
 		updateOnRenameRecursive: cfg.get<boolean>('updateOnRenameRecursive', false),
 	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),

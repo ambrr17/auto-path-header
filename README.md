@@ -25,13 +25,13 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 > **Not limited to these!** Using [`autoPathHeader.customTemplatesByExtension`](#custom-templates-by-file-extension), you can add path comments to **ANY file extension** with any comment format you want. These are just the built-in presets.
 
 ### Single-line comments (`//`)
-- .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php
+- .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php, .jsonc
 
 ### Hash comments (`#`)
 - .py, .sh, .bash, .zsh, .rb, .pl, .pm, .env, .txt, .yml, .yaml
 
 ### Block comments (`/* */`)
-- .css, .scss, .sass, .less, .json
+- .css, .scss, .sass, .less
 
 ### SQL comments (`--`)
 - .sql, .lua, .hs
@@ -76,7 +76,7 @@ The extension activates immediately after installation to handle files with any 
   - `['src/**']` allows files under any subfolder of `src`
   - `['**/utils']` allows files inside any `utils` directory
 
-- `autoPathHeader.ignoredDirectories` — array of directory names, relative paths or **glob patterns** (minimatch). Files located inside any matching directory will be ignored for automatic insertion and updates. **Setting this value replaces the default list completely; it does not append.** If you only need to block a few paths, consider using the opposite whitelist setting `autoPathHeader.allowedOnlyDirectories` instead. The default ignored list is `['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin']`. Examples:
+- `autoPathHeader.ignoredDirectories` — array of directory names, relative paths or **glob patterns** (minimatch). Files located inside any matching directory will be ignored for automatic insertion and updates. **Setting this value replaces the default list completely; it does not append.** If you only need to block a few paths, consider using the opposite whitelist setting `autoPathHeader.allowedOnlyDirectories` instead. The default ignored list is `['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin', '.next']`. Examples:
   - `['**/node_modules', '**/dist']` to ignore those folders anywhere
   - `['temp/*']` to ignore immediate children of `temp`
 
