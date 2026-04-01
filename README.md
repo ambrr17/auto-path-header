@@ -336,6 +336,8 @@ The extension doesn't provide undo. Use VS Code's built-in undo (Ctrl+Z) or your
 
 ## Support
 
+You can start by giving a ⭐ rating — it boosts visibility and helps others discover the project.
+
 If you find this extension useful and want to support further development:
 
 [![Donate](https://img.shields.io/badge/Donate-Crypto-green?style=for-the-badge)](https://donate.niklis.pp.ua)
