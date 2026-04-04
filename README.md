@@ -137,9 +137,9 @@ Priority order for template selection:
   "autoPathHeader.customTemplatesByExtension": {
     ".env.local": "# LOCAL OVERRIDE — {path}",
     ".test.ts": "// 🧪 TEST: {path}",
-    "Dockerfile.dev": "# DEV BUILD: {path}",
+    "Dockerfile.dev": "# DEV BUILD: {absolutePath|unix|toUpperCase}",
     ".txt": "# TEXT FILE: {path}",
-    ".log": "// LOG FILE: {path}"
+    ".log": "// LOG FILE: {path|toLowerCase}"
   }
 }
 ```
