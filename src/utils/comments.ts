@@ -110,56 +110,15 @@ export function getCommentForFileExtension(filePath: string, customTemplatesByEx
 	return { template: defaultTemplate, isCustom: false };
 }
 
-export function getCommentForCustomTemplate(lang: string, filePath: string, template: string): string | null {
-	// Check if the template contains standard placeholders that require extension-specific formatting
-	const hasStandardPlaceholder = /{comment}|{prefix}|{suffix}/.test(template);
-
-	if (hasStandardPlaceholder) {
-		// If the template contains standard placeholders, apply extension-specific formatting
-		return getCommentByFileExtension(filePath, template);
-	} else {
-		// If the template doesn't contain standard placeholders, we need to decide whether to apply extension-specific formatting
-		// If the template already starts with a known comment character, we'll treat it as fully customized
-		const normalizedTemplate = template.trim();
-		const startsWithComment = ['#', '//', '/*', '--', '<!--', '<?php'].some(commentChar =>
-			normalizedTemplate.startsWith(commentChar)
-		);
-
-		if (startsWithComment) {
-			// If template already starts with a comment character, process it as-is
-			let processedTemplate = template;
-			processedTemplate = processedTemplate.split('{path}').join(filePath);
-			processedTemplate = processedTemplate.split('{filename}').join(path.basename(filePath));
-			processedTemplate = processedTemplate.split('{dirname}').join(path.dirname(filePath));
-			return processedTemplate;
-		} else {
-			// Check if the template contains {path} placeholder - if so, treat it as a fully custom template
-			if (template.includes('{path}')) {
-				// Process the {path}, {filename}, and {dirname} placeholders in the custom template
-				let processedTemplate = template;
-				processedTemplate = processedTemplate.split('{path}').join(filePath);
-				processedTemplate = processedTemplate.split('{filename}').join(path.basename(filePath));
-				processedTemplate = processedTemplate.split('{dirname}').join(path.dirname(filePath));
-				return processedTemplate;
-			} else {
-				// If template doesn't start with a comment character and doesn't contain {path}, apply extension-specific formatting
-				// First, process the {path}, {filename}, and {dirname} placeholders
-				let processedTemplate = template;
-				processedTemplate = processedTemplate.split('{path}').join(filePath);
-				processedTemplate = processedTemplate.split('{filename}').join(path.basename(filePath));
-				processedTemplate = processedTemplate.split('{dirname}').join(path.dirname(filePath));
-				
-				// Then wrap it with the appropriate comment style for the file extension
-				const extensionSpecificComment = getCommentByFileExtension(filePath, '{comment}');
-				// If the extension is not supported, use a default comment style (#) for the processed template
-				if (!extensionSpecificComment) {
-					return `# ${processedTemplate}`;
-				}
-				return extensionSpecificComment;
-			}
-		}
-	}
-}
+// export function getCommentForCustomTemplate(lang: string, filePath: string, template: string): string | null {
+// 	// Process the {path}, {filename}, and {dirname} placeholders in the custom template
+// 	let processedTemplate = template;
+// 	processedTemplate = processedTemplate.split('{path}').join(filePath);
+// 	processedTemplate = processedTemplate.split('{absolutePath}').join(path.resolve(filePath));
+// 	processedTemplate = processedTemplate.split('{filename}').join(path.basename(filePath));
+// 	processedTemplate = processedTemplate.split('{dirname}').join(path.dirname(filePath));
+// 	return processedTemplate;
+// }
 
 /**
  * Get comment style based on file extension
@@ -168,19 +127,19 @@ export function getCommentForCustomTemplate(lang: string, filePath: string, temp
  */
 export function getCommentStyleByExtension(filePath: string): CommentStyle | undefined {
 	const ext = path.extname(filePath).toLowerCase();
-	
+
 	// First, try to match the full extension
 	if (DEFAULT_EXTENSION_STYLES[ext]) {
 		return DEFAULT_EXTENSION_STYLES[ext];
 	}
-	
+
 	// If no match found, try to match by checking if the file is a special case
 	// like Dockerfile, Makefile, etc. that don't have extensions
 	const basename = path.basename(filePath).toLowerCase();
 	if (DEFAULT_EXTENSION_STYLES[`.${basename}`]) {
 		return DEFAULT_EXTENSION_STYLES[`.${basename}`];
 	}
-	
+
 	// Try compound extensions like .env.local, .gitignore, etc.
 	const parts = basename.split('.');
 	if (parts.length > 1) {
@@ -191,7 +150,7 @@ export function getCommentStyleByExtension(filePath: string): CommentStyle | und
 			}
 		}
 	}
-	
+
 	return undefined;
 }
 
@@ -203,13 +162,13 @@ export function getCommentStyleByExtension(filePath: string): CommentStyle | und
  */
 export function getCommentByFileExtension(filePath: string, template: string = '{comment}'): string | null {
 	const style = getCommentStyleByExtension(filePath);
-	
+
 	// If no style found for extension, use default style
 	if (!style) {
 		const defaultPrefix = '# ';
 		const defaultSuffix = '';
 		const defaultComment = `${defaultPrefix}${filePath}${defaultSuffix}`;
-		
+
 		let result = template;
 		for (const placeholder of TEMPLATE_PLACEHOLDERS) {
 			if (!result.includes(placeholder)) continue;
@@ -264,4 +223,179 @@ export function getCommentByFileExtension(filePath: string, template: string = '
 	// If template did not include any placeholder, fall back to default comment
 	const containsPlaceholder = TEMPLATE_PLACEHOLDERS.some((ph) => template.includes(ph));
 	return containsPlaceholder ? result : defaultComment;
+}
+
+/**
+ * Базовые типы значений в пайплайне
+ */
+type Primitive = string | number | boolean;
+type Value = Primitive | Primitive[];
+
+/**
+ * Сигнатура фильтра
+ */
+type FilterFn = (value: Value, ...args: string[]) => Value;
+
+/**
+ * Реестр фильтров
+ */
+const filterRegistry: Record<string, FilterFn> = {
+	unix: (v) => String(v).replace(/\\/g, '/'),
+
+	toUpperCase: (v) => String(v).toUpperCase(),
+	toLowerCase: (v) => String(v).toLowerCase(),
+
+	// normalize: (v) =>
+	//     String(v)
+	//         .replace(/\\/g, '/')
+	//         .replace(/\/+/g, '/'),
+
+	// split: (v, sep) => String(v).split(sep),
+
+	// last: (v) =>
+	//     Array.isArray(v) ? v[v.length - 1] ?? '' : v,
+
+	// replace: (v, from, to) =>
+	//     String(v).replace(from, to ?? ''),
+
+	// contains: (v, substr) =>
+	//     String(v).includes(substr),
+
+	// ternary: (v, a, b) =>
+	//     v ? a : b,
+
+	// slice: (v, start, end) =>
+	//     String(v).slice(Number(start), Number(end)),
+
+	// depth: (v, n) =>
+	//     String(v)
+	//         .split('/')
+	//         .slice(0, Number(n))
+	//         .join('/'),
+
+	// relative: (v, base) => {
+	//     const normalized = String(v).replace(/\\/g, '/');
+	//     const idx = normalized.indexOf(base);
+	//     return idx >= 0
+	//         ? normalized.slice(idx + base.length + 1)
+	//         : normalized;
+	// }
+};
+
+/**
+ * Описание фильтра после парсинга
+ */
+interface ParsedFilter {
+	name: string;
+	args: string[];
+}
+
+/**
+ * Описание выражения {path|filter}
+ */
+interface ParsedExpression {
+	base: string;
+	filters: ParsedFilter[];
+}
+
+/**
+ * Контекст доступных переменных
+ */
+interface TemplateContext {
+	path: string;
+	absolutePath: string;
+	filename: string;
+	dirname: string;
+}
+
+/**
+ * Парсинг выражения
+ */
+function parseExpression(expr: string): ParsedExpression {
+	const [base, ...filters] = expr.split('|');
+
+	return {
+		base: base.trim(),
+		filters: filters.map((f) => {
+			const [name, args] = f.split(':');
+			return {
+				name: name.trim(),
+				args: args ? args.split(',').map(a => a.trim()) : []
+			};
+		})
+	};
+}
+
+/**
+ * Применение фильтров
+ */
+function applyFilters(value: Value, filters: ParsedFilter[]): Value {
+	return filters.reduce<Value>((acc, filter) => {
+		const fn = filterRegistry[filter.name];
+
+		if (!fn) {
+			console.warn(`Unknown filter: ${filter.name}`);
+			return acc;
+		}
+
+		try {
+			return fn(acc, ...filter.args);
+		} catch (e) {
+			console.warn(`Filter error: ${filter.name}`, e);
+			return acc;
+		}
+	}, value);
+}
+
+/**
+ * Регистрация пользовательских фильтров
+ */
+export function registerUserFilters(userFilters: Record<string, string>) {
+	for (const [name, fnString] of Object.entries(userFilters)) {
+		try {
+			const fn = new Function(
+				'value',
+				'...args',
+				`return (${fnString})(value, ...args)`
+			) as FilterFn;
+
+			filterRegistry[name] = fn;
+		} catch (e) {
+			console.warn(`Invalid filter: ${name}`);
+		}
+	}
+}
+
+/**
+ * Основная функция обработки шаблона
+ */
+export function getCommentForCustomTemplate(
+	lang: string,
+	filePath: string,
+	template: string
+): string | null {
+
+	const context: TemplateContext = {
+		path: filePath,
+		absolutePath: path.resolve(filePath),
+		filename: path.basename(filePath),
+		dirname: path.dirname(filePath)
+	};
+
+	const result = template.replace(/\{([^}]+)\}/g, (_, expr: string) => {
+		const { base, filters } = parseExpression(expr);
+
+		const value = context[base as keyof TemplateContext];
+
+		if (value === undefined) {
+			console.warn(`Unknown variable: ${base}`);
+			return '';
+		}
+
+		const processed = applyFilters(value, filters);
+
+		return String(processed);
+	});
+
+	return result;
 }

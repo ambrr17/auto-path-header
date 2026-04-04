@@ -144,7 +144,7 @@ Priority order for template selection:
 }
 ```
 
-Supported placeholders for custom templates include `{path}`, `{filename}`, and `{dirname}` which will be replaced with the actual values when inserting the comment.
+Supported placeholders for custom templates include `{path}`, `{absolutePath}`, `{filename}`, and `{dirname}` which will be replaced with the actual values when inserting the comment.
 
 This configuration allows you to define templates for ANY file extension. Simply add an entry with the desired file extension (starting with a dot) as the key and your custom template as the value. The extension will automatically apply the appropriate template based on the file extension when inserting path comments.
 
@@ -161,6 +161,48 @@ Additionally, you can define a default template for ALL file extensions using th
 ```
 
 Note that specific file names and extensions will take precedence over the wildcard template.
+
+## Filters
+
+The extension supports a simple filter system for transforming placeholders directly in the template.
+
+**Syntax:**
+{variable|filter}
+{variable|filter1|filter2}
+
+
+Filters are applied left to right (pipeline).
+
+### Available Filters
+
+**`unix`** – Converts a path to Unix format (replaces `\` with `/`).
+{path|unix}
+
+    Example: `src\components\Button.tsx` → `src/components/Button.tsx`
+
+**`toUpperCase`** – Converts a string to uppercase.
+{filename|toUpperCase}
+
+    Example: `button.tsx` → `BUTTON.TSX`
+
+**`toLowerCase`** – Converts a string to lowercase.
+{filename|toLowerCase}
+
+    Example: `Button.TSX` → `button.tsx`
+
+### Chaining Filters
+
+Filters can be combined:
+{path|unix|toUpperCase}
+
+    Example: `src\components\Button.tsx` → `SRC/COMPONENTS/BUTTON.TSX`
+
+### Notes
+
+- All values are cast to strings before applying filters
+- Unknown filters are ignored
+- Filters are applied sequentially, passing each result to the next
+
 
 ## Configuration Priority
 
@@ -322,6 +364,18 @@ Use `customTemplatesByExtension`:
   }
 }
 ```
+
+### "Why is my filter not working?"
+
+Check syntax (`{variable|filter}`), variable name, and filter spelling. Filters only work with `{path}`, `{filename}`, and `{dirname}`.
+
+### "Can I create custom filters?"
+
+No, only built-in filters (`unix`, `toUpperCase`, `toLowerCase`) are available.
+
+### "What happens with an unknown filter?"
+
+It is ignored — the value passes through unchanged with no error.
 
 ### "What is the difference between `allowedOnlyDirectories` and `ignoredDirectories`?"
 

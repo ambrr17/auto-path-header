@@ -2,7 +2,7 @@
   "name": "auto-path-header",
   "displayName": "Auto Path Header",
   "description": "Automatically inserts the relative path of the file as a comment on the first line.",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "publisher": "Niklis",
   "engines": {
     "vscode": "^1.85.0"

@@ -5,11 +5,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
-## [Unreleased]
+## [1.0.2] - 2026-04-04
 
 ### Fixed
 
 * Updated `.json` file handling to align with JSON specification
+
+### Added
+
+- `{absolutePath}` placeholder
+- Filter system for placeholders:
+  - Transform variables using pipe syntax: `{variable|filter}`
+  - New filters: `unix`, `toUpperCase`, `toLowerCase`
+  - Support for filter chaining (e.g., `{path|unix|toUpperCase}`)
+  - Unknown filters are ignored with a console warning
 
 ## [1.0.1] - 2026-03-16
 
