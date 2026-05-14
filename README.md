@@ -1,6 +1,7 @@
 <!-- README.md -->
 
 # Auto Path Header
+
 [![License](https://img.shields.io/github/license/ambrr17/auto-path-header?style=for-the-badge)](https://github.com/ambrr17/auto-path-header/blob/main/LICENSE)
 
 Auto Path Header is a Visual Studio Code extension that automatically inserts the relative file path as a comment on the first line.
@@ -8,6 +9,7 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 ![Static Badge](https://img.shields.io/badge/Support_for-ANY_file_extension-orange?style=for-the-badge)
 
 ![Auto Insert Into Folder Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert-with-subfolder.gif)
+
 ## Features
 
 - Automatic insertion of the file path on open for new/empty files; files with existing content require manual insertion via Command Palette
@@ -21,18 +23,19 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 ![Copy with Path Header Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/copyWithPathHeader.gif)
 
 ### 📋 Copy with Path Header
+
 Quickly copy code snippets with an automatic file path header prepended to your clipboard. The command respects your current selection, preserves exact formatting/indentation, and falls back to the system clipboard if nothing is selected.
 
 **How it works:**
-| Scenario | Action | Result in Clipboard |
-|----------|--------|---------------------|
-| **With selection** | Select text → `Ctrl+Alt+H` (or configured key) | `<!-- src/components/App.tsx -->\n\n<your selected code>` |
-| **No selection** | Copy text elsewhere → `Ctrl+Alt+H` | `<!-- src/utils/helpers.ts -->\n\n<last copied text>` |
-| **Empty clipboard** | Press shortcut with nothing selected/copied | Shows warning & aborts |
+
+- **With selection**: Select text → `Ctrl+Alt+H` → Result: `<!-- src/components/App.tsx -->` + empty line + your code
+- **No selection**: Copy text elsewhere → `Ctrl+Alt+H` → Result: Path header + last copied content
+- **Empty clipboard**: Press shortcut with nothing selected → Shows warning & aborts
 
 **Configuration:**
+
 - Enabled by default. Toggle via `"autoPathHeader.copyWithPathHeader": false`
-- Uses the same comment styles & custom templates as automatic insertion.
+- Uses the same comment styles & custom templates as automatic insertion
 - Remap in `keybindings.json` using command `autoPathHeader.copyWithPathHeader`
 
 ## Supported file extensions
@@ -40,23 +43,29 @@ Quickly copy code snippets with an automatic file path header prepended to your 
 > **Not limited to these!** Using [`autoPathHeader.customTemplatesByExtension`](#custom-templates-by-file-extension), you can add path comments to **ANY file extension** with any comment format you want. These are just the built-in presets.
 
 ### Single-line comments (`//`)
+
 - .js, .ts, .jsx, .tsx, .java, .c, .cpp, .h, .hpp, .cs, .go, .rs, .swift, .kt, .kts, .php, .jsonc
 
 ### Hash comments (`#`)
+
 - .py, .sh, .bash, .zsh, .rb, .pl, .pm, .env, .txt, .yml, .yaml
 
 ### Block comments (`/* */`)
+
 - .css, .scss, .sass, .less
 
 ### SQL comments (`--`)
+
 - .sql, .lua, .hs
 
 ### HTML comments (`<!-- -->`)
+
 - .html, .htm, .xml, .md, .markdown, .svg
 
 ### Other comment styles
-- .ini (semicolon comments `; `)
-- .bat, .cmd (REM comments `@REM `)
+
+- .ini (semicolon comments `;`)
+- .bat, .cmd (REM comments `@REM`)
 
 ## Installation
 
@@ -96,6 +105,7 @@ The extension activates immediately after installation to handle files with any 
   - `['temp/*']` to ignore immediate children of `temp`
 
   _Example: replace all defaults with a custom ignore list (plain names or glob patterns)_
+
   ```jsonc
   {
     "autoPathHeader.ignoredDirectories": [
@@ -105,7 +115,9 @@ The extension activates immediately after installation to handle files with any 
     ]
   }
   ```
+
   _Example using whitelist to allow only specific folders (supports globs)_
+
   ```jsonc
   {
     "autoPathHeader.allowedOnlyDirectories": [
@@ -142,6 +154,7 @@ The manual command will respect this list and show a message instead of insertin
 You can define custom templates for ANY file extension. This allows different formatting for different file types. The extension determines the file extension including the dot, and is case-insensitive. This supports compound extensions like `.env.local` as well as specific file names like `Dockerfile.dev`.
 
 Priority order for template selection:
+
 1. `customTemplatesByExtension[specific file name]` (e.g., "Dockerfile.dev")
 2. `customTemplatesByExtension[compound extension]` (e.g., ".env.local")
 3. `customTemplatesByExtension[regular extension]` (e.g., ".ts")
@@ -185,7 +198,6 @@ The extension supports a simple filter system for transforming placeholders dire
 {variable|filter}
 {variable|filter1|filter2}
 
-
 Filters are applied left to right (pipeline).
 
 ### Available Filters
@@ -218,7 +230,6 @@ Filters can be combined:
 - Unknown filters are ignored
 - Filters are applied sequentially, passing each result to the next
 
-
 ## Configuration Priority
 
 When the extension processes a file, it applies checks in the following order:
@@ -245,6 +256,7 @@ When the extension processes a file, it applies checks in the following order:
 ```
 
 With this config:
+
 - ✅ `src/index.ts` — processed (matches all checks)
 - ❌ `src/index.test.ts` — ignored (matches `disabledExtensions`)
 - ❌ `src/node_modules/lib.ts` — ignored (matches `ignoredDirectories`)
@@ -257,11 +269,13 @@ When you rename a directory, the extension can update path comments for all file
 ### Behavior with `updateOnRenameRecursive`
 
 **When `updateOnRenameRecursive: true`** (automatic batch update):
+
 - All eligible files inside the renamed directory have their comments updated automatically
 - No confirmation dialog appears for individual files
 - One informational message shows the total number of files updated
 
 Example: Rename `old-src/` to `new-src/`
+
 ```
 Before:
   new-src/
@@ -279,11 +293,13 @@ Message: "Path comments updated: 3 files"
 ```
 
 **When `updateOnRenameRecursive: false`** (per-file confirmation):
+
 - Each file triggers a "Yes/No" dialog asking whether to update
 - You can skip specific files or update selectively
 - Useful if you want to review changes
 
 Example: Same rename, but with prompts
+
 ```
 1. "File renamed from old-src/index.ts to new-src/index.ts. Update path comment?" → [Yes] [No]
 2. "File renamed from old-src/utils.ts to new-src/utils.ts. Update path comment?" → [Yes] [No]
@@ -306,6 +322,7 @@ Example: Same rename, but with prompts
 - **Manual**: For files with existing content, use `Ctrl+Shift+P` → "Auto Path Header: Insert Path Comment"
 
 ### Rename/Move
+
 - When you rename or move a file, the extension automatically updates the path comment if `updateOnRename` is enabled
 - For directory renames with multiple files, see the `updateOnRenameRecursive` setting above
 
@@ -361,6 +378,7 @@ Yes, use glob patterns in `ignoredDirectories`:
 ### "Why isn't the comment updating on file rename?"
 
 Make sure:
+
 1. `autoPathHeader.updateOnRename: true` is set
 2. The file has a path comment on the first line (matches the old path)
 3. The file is not in an ignored directory
