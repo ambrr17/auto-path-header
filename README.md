@@ -7,8 +7,6 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 
 ![Static Badge](https://img.shields.io/badge/Support_for-ANY_file_extension-orange?style=for-the-badge)
 
-![Auto Insert Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert.gif)
-
 ![Auto Insert Into Folder Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/auto-insert-with-subfolder.gif)
 ## Features
 
@@ -19,6 +17,8 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 - Error handling with localized messages
 - Automatic path update on rename/move
 - Manual comment insertion via Command Palette
+
+![Copy with Path Header Demo](https://raw.githubusercontent.com/ambrr17/auto-path-header/master/media/copyWithPathHeader.gif)
 
 ### 📋 Copy with Path Header
 Quickly copy code snippets with an automatic file path header prepended to your clipboard. The command respects your current selection, preserves exact formatting/indentation, and falls back to the system clipboard if nothing is selected.

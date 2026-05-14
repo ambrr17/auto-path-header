@@ -1,4 +1,5 @@
 // src/services/inserter.ts
+
 /**
  * Comment inserter service
  * Вставляет или заменяет комментарий первой строки, не переключая фокус редактора
