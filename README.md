@@ -20,6 +20,21 @@ Auto Path Header is a Visual Studio Code extension that automatically inserts th
 - Automatic path update on rename/move
 - Manual comment insertion via Command Palette
 
+### 📋 Copy with Path Header
+Quickly copy code snippets with an automatic file path header prepended to your clipboard. The command respects your current selection, preserves exact formatting/indentation, and falls back to the system clipboard if nothing is selected.
+
+**How it works:**
+| Scenario | Action | Result in Clipboard |
+|----------|--------|---------------------|
+| **With selection** | Select text → `Ctrl+Alt+H` (or configured key) | `<!-- src/components/App.tsx -->\n\n<your selected code>` |
+| **No selection** | Copy text elsewhere → `Ctrl+Alt+H` | `<!-- src/utils/helpers.ts -->\n\n<last copied text>` |
+| **Empty clipboard** | Press shortcut with nothing selected/copied | Shows warning & aborts |
+
+**Configuration:**
+- Enabled by default. Toggle via `"autoPathHeader.copyWithPathHeader": false`
+- Uses the same comment styles & custom templates as automatic insertion.
+- Remap in `keybindings.json` using command `autoPathHeader.copyWithPathHeader`
+
 ## Supported file extensions
 
 > **Not limited to these!** Using [`autoPathHeader.customTemplatesByExtension`](#custom-templates-by-file-extension), you can add path comments to **ANY file extension** with any comment format you want. These are just the built-in presets.

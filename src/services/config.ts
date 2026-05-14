@@ -31,6 +31,8 @@ export interface AutoPathHeaderConfig {
 	updateOnRenameRecursive: boolean
 	/** Custom templates by file extension */
 	customTemplatesByExtension: Record<string, string>
+	/** Enable chord Ctrl+C then Ctrl+H to copy with path header */
+	copyWithPathHeader: boolean
 }
 
 /**
@@ -40,24 +42,25 @@ export function readConfig(scope?: vscode.ConfigurationScope): AutoPathHeaderCon
 	const cfg = vscode.workspace.getConfiguration('autoPathHeader', scope)
 	const formatTemplate = cfg.get<string>('formatTemplate', '{comment}')?.trim() || '{comment}'
 	return {
-	    enabled: cfg.get<boolean>('enabled', true),
-	    language: cfg.get<SupportedUiLanguage>('language', 'auto'),
-	    updateOnRename: cfg.get<boolean>('updateOnRename', true),
-	    askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
-	    formatTemplate,
-	    disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
-	    allowedOnlyExtensions: cfg.get<string[]>('allowedOnlyExtensions', [
-            ".js", ".ts", ".jsx", ".tsx", ".java", ".c", ".cpp", ".h", ".hpp", ".cs",
-            ".go", ".rs", ".swift", ".kt", ".kts", ".php", ".py", ".sh", ".bash",
-            ".zsh", ".rb", ".pl", ".pm", ".env", ".txt", ".md", ".markdown", ".css",
-            ".scss", ".sass", ".less", ".sql", ".lua", ".hs", ".html", ".htm",
-            ".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
-            ".yml", ".yaml", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
-        ]),
+		enabled: cfg.get<boolean>('enabled', true),
+		language: cfg.get<SupportedUiLanguage>('language', 'auto'),
+		updateOnRename: cfg.get<boolean>('updateOnRename', true),
+		askBeforeUpdate: cfg.get<boolean>('askBeforeUpdate', false),
+		formatTemplate,
+		disabledExtensions: cfg.get<string[]>('disabledExtensions', []),
+		allowedOnlyExtensions: cfg.get<string[]>('allowedOnlyExtensions', [
+			".js", ".ts", ".jsx", ".tsx", ".java", ".c", ".cpp", ".h", ".hpp", ".cs",
+			".go", ".rs", ".swift", ".kt", ".kts", ".php", ".py", ".sh", ".bash",
+			".zsh", ".rb", ".pl", ".pm", ".env", ".txt", ".md", ".markdown", ".css",
+			".scss", ".sass", ".less", ".sql", ".lua", ".hs", ".html", ".htm",
+			".xml", ".svg", ".dockerfile", ".Dockerfile", ".gitignore", ".npmrc",
+			".yml", ".yaml", ".jsonc", ".toml", ".ini", ".bat", ".cmd"
+		]),
 		allowedOnlyDirectories: cfg.get<string[]>('allowedOnlyDirectories', ['.']),
 		ignoredDirectories: cfg.get<string[]>('ignoredDirectories', ['node_modules', 'vendor', 'vendors', 'dist', 'build', '.git', '.svn', '.hg', 'target', 'out', 'bin', '.next']),
 		updateOnRenameFolder: cfg.get<boolean>('updateOnRenameFolder', true),
 		updateOnRenameRecursive: cfg.get<boolean>('updateOnRenameRecursive', false),
-	    customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
+		customTemplatesByExtension: cfg.get<Record<string, string>>('customTemplatesByExtension', {}),
+		copyWithPathHeader: cfg.get<boolean>('copyWithPathHeader', true),
 	}
 }

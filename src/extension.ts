@@ -7,6 +7,7 @@
 import * as vscode from 'vscode'
 import * as path from 'path';
 import { getMessage } from './localization'
+import { getCommentForFileExtension, getCommentByFileExtension, getCommentForCustomTemplate } from './utils/comments'
 import { isCommentWithPath } from './utils/comments'
 import { readConfig } from './services/config'
 import { ensureCommentAtTop, replaceTopComment } from './services/inserter'
@@ -14,10 +15,20 @@ import { isInIgnoredDirectory, isInAllowedDirectory } from './utils/directoryUti
 
 export function activate(context: vscode.ExtensionContext) {
 
+  const syncCopySettingContext = () => {
+    const cfg = readConfig();
+    // Синхронизируем настройку с when-контекстом VS Code
+    vscode.commands.executeCommand('setContext', 'autoPathHeader.copyWithPathHeader', cfg.copyWithPathHeader);
+  };
+  syncCopySettingContext();
+
   // Подписка на изменения конфигурации для обновления кэша
   const configChangeDisposable = vscode.workspace.onDidChangeConfiguration(e => {
     if (e.affectsConfiguration('autoPathHeader')) {
       // Конфигурация будет перечитана при следующем использовании
+    }
+    if (e.affectsConfiguration('autoPathHeader.copyWithPathHeader')) {
+      syncCopySettingContext();
     }
   });
 
@@ -403,7 +414,57 @@ export function activate(context: vscode.ExtensionContext) {
     }
   })
 
-  context.subscriptions.push(disposable, renameDisposable, insertCommentCommand, configChangeDisposable)
+  const copyWithPathHeaderCommand = vscode.commands.registerCommand('autoPathHeader.copyWithPathHeader', async () => {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor || editor.document.uri.scheme !== 'file') return;
+
+    const cfg = readConfig(editor.document.uri);
+    if (!cfg.copyWithPathHeader) return;
+
+    try {
+      const filePath = vscode.workspace.asRelativePath(editor.document.uri);
+      let textToCopy: string;
+
+      // 🔍 Логика выбора источника текста
+      if (editor.selection.isEmpty) {
+        // Нет выделения → читаем системный буфер
+        textToCopy = await vscode.env.clipboard.readText();
+        if (!textToCopy) {
+          const lang = vscode.env.language;
+          vscode.window.showWarningMessage(getMessage('nothingInClipboard', lang));
+          return;
+        }
+      } else {
+        // Есть выделение → берём текст из редактора (сохраняет все отступы и переносы)
+        textToCopy = editor.document.getText(editor.selection);
+      }
+
+      // 📝 Генерация заголовка через вашу существующую систему шаблонов
+      const templateResult = getCommentForFileExtension(filePath, cfg.customTemplatesByExtension, cfg.formatTemplate);
+      if (!templateResult) return;
+
+      let headerComment: string | null = null;
+      if (templateResult.isCustom) {
+        headerComment = getCommentForCustomTemplate(editor.document.languageId, filePath, templateResult.template);
+      } else {
+        headerComment = getCommentByFileExtension(filePath, templateResult.template);
+      }
+      if (!headerComment) return;
+
+      // 📦 Сборка и запись в буфер
+      const newContent = `${headerComment}\n\n${textToCopy}`;
+      await vscode.env.clipboard.writeText(newContent);
+
+      vscode.window.showInformationMessage(getMessage('getCopied', vscode.env.language));
+    } catch (error) {
+      const lang = vscode.env.language;
+      vscode.window.showErrorMessage(
+        getMessage('errorCopyingWithHeader', lang)
+      );
+    }
+  });
+
+  context.subscriptions.push(disposable, renameDisposable, insertCommentCommand, configChangeDisposable, copyWithPathHeaderCommand)
 }
 
 export function deactivate() { }

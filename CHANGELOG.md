@@ -5,6 +5,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/).
 
+## [1.1.0] - 2026-05-14
+
+### Added
+
+- **Copy with Path Header**: New command `autoPathHeader.copyWithPathHeader` to copy selected text or clipboard content with a file path header prepended.
+- Preserves exact indentation and formatting from editor selection.
+- Falls back to system clipboard content if no text is selected.
+- Toggleable via `autoPathHeader.copyWithPathHeader` setting (enabled by default).
+- Fully integrates with existing comment styles, custom templates, and filter system.
+- Default keybinding: `Ctrl+Alt+H`.
+
+
 ## [1.0.2] - 2026-04-04
 
 ### Fixed
